@@ -1,113 +1,25 @@
 
 import os
-import tempfile
-import gc
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
 
+import tempfile
 import gradio as gr
 import numpy as np
+import torch
+import torchxrayvision as xrv
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import torch
-import torchxrayvision as xrv
-import cv2
-
-from transformers import AutoModel, PreTrainedModel
-
+from PIL import Image
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-)
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER
+from reportlab.pdfgen import canvas
 
+torch.set_num_threads(1)
+DEVICE = torch.device("cpu")
+MODEL = None
 
-# ==========================================
-# IDENTIDADE VISUAL
-# ==========================================
-
-PASTA = os.path.dirname(os.path.abspath(__file__))
-logo_path = os.path.join(PASTA, "IMG_5787.jpeg")
-
-css = """
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-:root, body, .gradio-container, .gradio-container * {
-    font-family: 'Inter', sans-serif !important;
-}
-
-.gradio-container {
-    background: linear-gradient(135deg, #080D22, #151638) !important;
-    color: white !important;
-    max-width: 100% !important;
-    width: 100% !important;
-}
-
-h1, h2, h3, p, label {
-    color: white !important;
-}
-
-button.primary {
-    background: linear-gradient(90deg, #5545D9, #8049E8) !important;
-    border: none !important;
-    color: white !important;
-    font-weight: 700 !important;
-}
-
-.panel, .block {
-    border-radius: 15px !important;
-}
-"""
-
-
-# ==========================================
-# CARREGAMENTO DOS MODELOS
-# ==========================================
-
-print("RADVISION IA: carregando modelos...")
-
-dispositivo = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
-
-torch.set_num_threads(2)
-
-# Modelo principal de análise radiográfica
-modelo = xrv.models.DenseNet(
-    weights="densenet121-res224-all"
-)
-
-modelo = modelo.to(dispositivo)
-modelo.eval()
-
-print("Modelo principal carregado.")
-
-# Compatibilidade do modelo de incidência
-if not hasattr(PreTrainedModel, "all_tied_weights_keys"):
-    PreTrainedModel.all_tied_weights_keys = {}
-
-dispositivo_view = (
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
-
-# Modelo de identificação da incidência
-modelo_view = AutoModel.from_pretrained(
-    "ianpan/chest-x-ray-basic",
-    trust_remote_code=True
-)
-
-modelo_view = modelo_view.eval().to(dispositivo_view)
-
-print("Modelo de incidência carregado.")
-print("RADVISION IA pronta para uso.")
-
-
-# ==========================================
-# TRADUÇÃO DOS ACHADOS
-# ==========================================
-
-traducoes = {
+TRADUCOES = {
     "Atelectasis": "Atelectasia",
     "Consolidation": "Consolidação",
     "Infiltration": "Infiltração",
@@ -125,387 +37,230 @@ traducoes = {
     "Lung Lesion": "Lesão pulmonar",
     "Fracture": "Fratura",
     "Lung Opacity": "Opacidade pulmonar",
-    "Enlarged Cardiomediastinum": "Alargamento do mediastino"
+    "Enlarged Cardiomediastinum": "Alargamento do mediastino",
 }
 
+def obter_modelo():
+    global MODEL
+    if MODEL is None:
+        MODEL = xrv.models.DenseNet(
+            weights="densenet121-res224-all"
+        ).to(DEVICE)
+        MODEL.eval()
+    return MODEL
 
-def traduzir_achado(nome):
-    return traducoes.get(nome, nome.replace("_", " "))
+def criar_grafico(nomes, valores):
+    fig, ax = plt.subplots(figsize=(9, 5))
+    indices = np.argsort(valores)[::-1]
+    nomes_ord = [nomes[i] for i in indices]
+    vals_ord = [valores[i] for i in indices]
+    ax.barh(nomes_ord[::-1], vals_ord[::-1])
+    ax.set_xlim(0, 1)
+    ax.set_xlabel("Pontuação do modelo (0 a 1)")
+    ax.set_title("Resultados da análise experimental")
+    fig.tight_layout()
+    caminho = tempfile.mktemp(suffix=".png")
+    fig.savefig(caminho, dpi=130, bbox_inches="tight")
+    plt.close(fig)
+    return caminho
 
-
-# ==========================================
-# IDENTIFICAÇÃO DA INCIDÊNCIA
-# ==========================================
-
-def identificar_incidencia(caminho):
-
-    imagem_view = cv2.imread(caminho, 0)
-
-    if imagem_view is None:
-        raise gr.Error("Não foi possível abrir a radiografia.")
-
-    imagem_preparada = modelo_view.preprocess(imagem_view)
-
-    entrada_view = torch.from_numpy(imagem_preparada)
-    entrada_view = entrada_view.unsqueeze(0).unsqueeze(0).float()
-    entrada_view = entrada_view.to(dispositivo_view)
-
-    with torch.inference_mode():
-        saida_view = modelo_view(entrada_view)
-
-    escores_view = torch.softmax(
-        saida_view["view"], dim=1
-    )[0]
-
-    incidencias = ["AP", "PA", "Perfil"]
-
-    indice = int(torch.argmax(escores_view).item())
-
-    incidencia = incidencias[indice]
-    escore = float(escores_view[indice].item()) * 100
-
-    return incidencia, escore
-
-
-# ==========================================
-# ANÁLISE DA RADIOGRAFIA
-# ==========================================
-
-def analisar_radiografia(caminho):
-
-    if caminho is None:
-        raise gr.Error("Envie uma radiografia primeiro.")
-
-    incidencia, escore = identificar_incidencia(caminho)
-
-    imagem = xrv.utils.load_image(caminho)
-    imagem = xrv.datasets.XRayCenterCrop()(imagem)
-    imagem = xrv.datasets.XRayResizer(224)(imagem)
-
-    entrada = torch.from_numpy(imagem).unsqueeze(0).float()
-    entrada = entrada.to(dispositivo)
-
-    with torch.no_grad():
-        resultado = modelo(entrada)
-
-    pontuacoes = resultado[0].cpu().numpy()
-
-    analise = sorted(
-        zip(modelo.pathologies, pontuacoes),
-        key=lambda x: x[1],
-        reverse=True
+def criar_pdf(nome_arquivo, incidencia, resultados):
+    caminho = tempfile.mktemp(suffix=".pdf")
+    pdf = canvas.Canvas(caminho, pagesize=A4)
+    largura, altura = A4
+    pdf.setTitle("Relatório RADVISION IA")
+    pdf.setFillColorRGB(0.10, 0.12, 0.25)
+    pdf.setFont("Helvetica-Bold", 20)
+    pdf.drawString(48, altura - 55, "RADVISION IA")
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(48, altura - 75, "Tecnologia e precisão em cada imagem.")
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(48, altura - 115, "Relatório de análise experimental")
+    pdf.setFont("Helvetica", 10)
+    pdf.drawString(48, altura - 140, f"Arquivo: {nome_arquivo}")
+    pdf.drawString(48, altura - 158, f"Incidência informada: {incidencia}")
+    y = altura - 195
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(48, y, "Achado")
+    pdf.drawString(340, y, "Pontuação")
+    y -= 18
+    pdf.setFont("Helvetica", 10)
+    for nome, valor in resultados:
+        if y < 70:
+            pdf.showPage()
+            y = altura - 60
+            pdf.setFont("Helvetica", 10)
+        pdf.drawString(48, y, nome[:45])
+        pdf.drawString(340, y, f"{valor:.3f}")
+        y -= 16
+    pdf.setFont("Helvetica-Oblique", 8)
+    pdf.drawString(
+        48, 42,
+        "Ferramenta acadêmica experimental. Não utilizar para diagnóstico ou decisão clínica."
     )
+    pdf.save()
+    return caminho
 
-    principais = analise[:10]
+def analisar(imagem, incidencia):
+    if imagem is None:
+        raise gr.Error("Envie uma radiografia para iniciar a análise.")
 
-    tabela_resultados = [
-        [traduzir_achado(nome), round(float(valor), 4)]
-        for nome, valor in analise
-    ]
+    try:
+        modelo = obter_modelo()
+        img = xrv.utils.load_image(imagem)
+        tensor = torch.from_numpy(img).unsqueeze(0).float().to(DEVICE)
 
-    # Gráfico
-    fig, ax = plt.subplots(figsize=(14, 9))
+        with torch.inference_mode():
+            pred = modelo(tensor)[0].detach().cpu().numpy()
 
-    nomes = [traduzir_achado(x[0]) for x in principais]
-    valores = [float(x[1]) for x in principais]
+        patologias = list(modelo.pathologies)
+        resultados = []
 
-    ax.barh(nomes[::-1], valores[::-1])
-    ax.set_title(
-        "RADVISION IA | Principais resultados",
-        fontsize=17,
-        pad=18
-    )
-    ax.set_xlabel("Escore do modelo", fontsize=13)
-    ax.tick_params(axis="y", labelsize=12)
-    ax.tick_params(axis="x", labelsize=11)
-    ax.grid(axis="x", alpha=0.2)
+        for nome, valor in zip(patologias, pred):
+            traduzido = TRADUCOES.get(
+                nome, nome.replace("_", " ")
+            )
+            resultados.append(
+                (traduzido, float(np.clip(valor, 0, 1)))
+            )
 
-    plt.tight_layout()
+        resultados.sort(key=lambda item: item[1], reverse=True)
+        principais = resultados[:10]
 
-    # Mapa de sensibilidade
-    entrada_mapa = entrada.detach().clone()
-    entrada_mapa.requires_grad_(True)
+        tabela = [
+            [nome, f"{valor:.3f}"]
+            for nome, valor in principais
+        ]
 
-    modelo.zero_grad()
-    saida = modelo(entrada_mapa)
-
-    indice_maior = int(np.argmax(pontuacoes))
-
-    saida[0, indice_maior].backward()
-
-    gradientes = entrada_mapa.grad.abs()
-
-    mapa = gradientes[0].max(dim=0)[0].detach().cpu().numpy()
-
-    mapa = (mapa - mapa.min()) / (
-        mapa.max() - mapa.min() + 1e-8
-    )
-
-    fig_mapa, ax_mapa = plt.subplots(figsize=(8, 8))
-
-    ax_mapa.imshow(imagem[0], cmap="gray")
-    ax_mapa.imshow(mapa, cmap="jet", alpha=0.4)
-
-    ax_mapa.set_title("Mapa de sensibilidade", fontsize=15)
-    ax_mapa.axis("off")
-
-    plt.tight_layout()
-
-    # Relatório
-    texto_relatorio = (
-        "RADVISION IA\n"
-        "Tecnologia e precisão em cada imagem.\n\n"
-        "Análise computacional concluída.\n\n"
-        f"Incidência identificada: {incidencia}\n"
-        f"Escore de classificação: {escore:.2f}%\n\n"
-        "Principais achados identificados:\n"
-    )
-
-    for nome, valor in principais:
-        texto_relatorio += (
-            f"- {traduzir_achado(nome)}: {float(valor):.4f}\n"
+        grafico = criar_grafico(
+            [item[0] for item in principais],
+            [item[1] for item in principais]
         )
 
-    texto_relatorio += (
-        "\nOs escores são experimentais e não representam "
-        "probabilidades diagnósticas. O escore da incidência "
-        "não garante que a classificação esteja correta. "
-        "O mapa de sensibilidade não confirma a localização "
-        "de lesões. Esta ferramenta não substitui a avaliação "
-        "de um profissional habilitado."
-    )
-
-    # Geração do PDF
-    arquivo_pdf = tempfile.NamedTemporaryFile(
-        delete=False, suffix=".pdf"
-    )
-
-    caminho_pdf = arquivo_pdf.name
-    arquivo_pdf.close()
-
-    estilos = getSampleStyleSheet()
-
-    titulo = ParagraphStyle(
-        "TituloRADVISION",
-        parent=estilos["Title"],
-        alignment=TA_CENTER,
-        textColor=colors.HexColor("#5545C7"),
-        fontSize=22
-    )
-
-    slogan = ParagraphStyle(
-        "SloganRADVISION",
-        parent=estilos["Heading2"],
-        alignment=TA_CENTER,
-        textColor=colors.HexColor("#5545C7")
-    )
-
-    elementos = [
-        Paragraph("RADVISION IA", titulo),
-        Paragraph(
-            "Tecnologia e precisão em cada imagem.",
-            slogan
-        ),
-        Spacer(1, 18),
-        Paragraph(
-            "RELATÓRIO EXPERIMENTAL",
-            estilos["Heading2"]
-        ),
-        Paragraph(
-            f"Incidência identificada: {incidencia}",
-            estilos["BodyText"]
-        ),
-        Paragraph(
-            f"Escore de classificação: {escore:.2f}%",
-            estilos["BodyText"]
-        ),
-        Spacer(1, 12),
-        Paragraph(
-            "Principais achados identificados pelo modelo:",
-            estilos["Heading3"]
+        pdf = criar_pdf(
+            os.path.basename(imagem),
+            incidencia,
+            principais
         )
-    ]
 
-    dados_pdf = [["Achado identificado", "Escore"]]
+        imagem_exibicao = Image.open(imagem).convert("RGB")
 
-    for nome, valor in principais:
-        dados_pdf.append([
-            traduzir_achado(nome),
-            f"{float(valor):.4f}"
-        ])
-
-    tabela_pdf = Table(dados_pdf, colWidths=[300, 100])
-
-    tabela_pdf.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#5545C7")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("PADDING", (0, 0), (-1, -1), 8)
-    ]))
-
-    elementos.extend([
-        Spacer(1, 10),
-        tabela_pdf,
-        Spacer(1, 20),
-        Paragraph(
-            "<b>Importante:</b> os valores apresentados são "
-            "escores experimentais, não probabilidades diagnósticas. "
-            "A classificação da incidência necessita de validação "
-            "independente. O mapa de sensibilidade não confirma "
-            "lesões. Este sistema é acadêmico e não deve ser "
-            "utilizado para diagnóstico ou decisões clínicas.",
-            estilos["BodyText"]
-        )
-    ])
-
-    documento = SimpleDocTemplate(caminho_pdf, pagesize=A4)
-    documento.build(elementos)
-
-    return (
-        "Análise computacional concluída!",
-        incidencia,
-        f"{escore:.2f}%",
-        tabela_resultados,
-        fig,
-        fig_mapa,
-        texto_relatorio,
-        caminho_pdf
-    )
-
-
-# ==========================================
-# INTERFACE PRINCIPAL
-# ==========================================
-
-with gr.Blocks(
-    theme=gr.themes.Soft(
-        primary_hue="violet",
-        secondary_hue="blue",
-        neutral_hue="slate"
-    ),
-    css=css,
-    title="RADVISION IA"
-) as demo:
-
-    with gr.Column():
-
-        if os.path.exists(logo_path):
-            gr.Image(
-                value=logo_path,
-                label=None,
-                interactive=False
-            )
-
-        gr.Markdown("""
-        <div style="text-align:center; padding:10px;">
-            <h1 style="font-size:38px; color:#FFFFFF; font-weight:800;">
-                RADVISION <span style="color:#A78BFA;">IA</span>
-            </h1>
-            <p style="font-size:18px; color:#B8C5DD;">
-                Tecnologia e precisão em cada imagem.
-            </p>
-            <p style="font-size:14px; color:#B8C5DD;">
-                Análise experimental de radiografias de tórax
-            </p>
-        </div>
-        """)
-
-    gr.Markdown("---")
-
-    with gr.Row():
-
-        with gr.Column(scale=2):
-
-            gr.Markdown("### ENVIO DA RADIOGRAFIA")
-
-            imagem = gr.Image(
-                type="filepath",
-                label="Selecionar radiografia de tórax",
-                height=600,
-                interactive=True
-            )
-
-            botao = gr.Button(
-                "ANALISAR RADIOGRAFIA",
-                variant="primary",
-                size="lg"
-            )
-
-            gr.Markdown("""
-            ### Sobre a RADVISION IA
-
-            Sistema acadêmico experimental para reconhecimento
-            de padrões em radiografias de tórax.
-            """)
-
-        with gr.Column(scale=3):
-
-            gr.Markdown("### RESULTADOS DA ANÁLISE")
-
-            resultado = gr.Textbox(
-                label="Situação da análise"
-            )
-
-            incidencia_detectada = gr.Textbox(
-                label="Incidência identificada automaticamente"
-            )
-
-            confianca_view = gr.Textbox(
-                label="Escore da classificação da incidência"
-            )
-
-            tabela = gr.Dataframe(
-                headers=["Achado identificado", "Escore do modelo"],
-                label="Achados identificados"
-            )
-
-            grafico = gr.Plot(
-                label="Gráfico de resultados"
-            )
-
-            mapa = gr.Plot(
-                label="Mapa de sensibilidade"
-            )
-
-            relatorio = gr.Textbox(
-                label="Relatório experimental",
-                lines=8
-            )
-
-            arquivo = gr.File(
-                label="Baixar relatório em PDF"
-            )
-
-    gr.Markdown("""
-    ---
-    <div style="text-align:center;">
-        <b>RADVISION IA | Projeto acadêmico</b>
-        <p>Os resultados são experimentais e não substituem
-        a avaliação de um profissional habilitado.</p>
-    </div>
-    """)
-
-    botao.click(
-        fn=analisar_radiografia,
-        inputs=[imagem],
-        outputs=[
-            resultado,
-            incidencia_detectada,
-            confianca_view,
+        return (
+            imagem_exibicao,
+            incidencia,
             tabela,
             grafico,
-            mapa,
-            relatorio,
-            arquivo
-        ]
+            pdf,
+            "Análise concluída. Os valores representam pontuações do modelo, não probabilidades diagnósticas."
+        )
+
+    except Exception as erro:
+        raise gr.Error(
+            f"Não foi possível analisar a imagem: {erro}"
+        )
+
+CSS = """
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+body, .gradio-container {
+    font-family: Inter, sans-serif !important;
+}
+.gradio-container {
+    background: #0b1020 !important;
+    color: #f4f5fb !important;
+}
+"""
+
+logo = "IMG_5787.jpeg"
+
+with gr.Blocks(css=CSS, title="RADVISION IA") as demo:
+    with gr.Column():
+
+        if os.path.exists(logo):
+            gr.Image(
+                value=logo,
+                show_label=False,
+                interactive=False,
+                height=150,
+                container=False
+            )
+
+        gr.Markdown(
+            "# RADVISION IA\n"
+            "### Tecnologia e precisão em cada imagem.\n"
+            "**Ferramenta acadêmica experimental para estudo de radiografias de tórax.**"
+        )
+
+        gr.Markdown(
+            "Envie uma imagem de radiografia de tórax. "
+            "Nesta versão, informe manualmente a incidência."
+        )
+
+        arquivo = gr.Image(
+            type="filepath",
+            label="Radiografia de tórax",
+            height=360
+        )
+
+        incidencia = gr.Radio(
+            choices=["AP", "PA", "Perfil", "Não informada"],
+            value="Não informada",
+            label="Incidência radiográfica"
+        )
+
+        botao = gr.Button(
+            "Analisar radiografia",
+            variant="primary"
+        )
+
+        imagem_saida = gr.Image(
+            label="Imagem enviada",
+            interactive=False
+        )
+
+        incidencia_saida = gr.Textbox(
+            label="Incidência informada"
+        )
+
+        tabela_saida = gr.Dataframe(
+            headers=["Achado radiográfico", "Pontuação"],
+            datatype=["str", "str"],
+            label="Principais resultados",
+            interactive=False
+        )
+
+        grafico_saida = gr.Image(
+            label="Gráfico de resultados"
+        )
+
+        pdf_saida = gr.File(
+            label="Relatório em PDF"
+        )
+
+        mensagem = gr.Markdown()
+
+        botao.click(
+            fn=analisar,
+            inputs=[arquivo, incidencia],
+            outputs=[
+                imagem_saida,
+                incidencia_saida,
+                tabela_saida,
+                grafico_saida,
+                pdf_saida,
+                mensagem
+            ]
+        )
+
+        gr.Markdown(
+            "---\n"
+            "**Aviso importante:** RADVISION IA é um projeto acadêmico e experimental. "
+            "Não substitui avaliação de radiologista, não confirma doenças e não deve "
+            "ser usado para diagnóstico, triagem ou decisão clínica."
+        )
+
+if __name__ == "__main__":
+    porta = int(os.environ.get("PORT", "7860"))
+    demo.launch(
+        server_name="0.0.0.0",
+        server_port=porta
     )
-
-
-# ==========================================
-# INICIALIZAÇÃO PARA O RENDER
-# ==========================================
-
-demo.launch(
-    server_name="0.0.0.0",
-    server_port=int(os.environ.get("PORT", 7860))
-)
