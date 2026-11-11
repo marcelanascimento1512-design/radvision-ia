@@ -1,1 +1,15 @@
 
+gradio
+torch
+torchxrayvision
+numpy
+matplotlib
+opencv-python-headless
+transformers
+timm
+safetensors
+reportlab
+Pillow
+scikit-image
+pandas
+
