@@ -16,7 +16,7 @@ from reportlab.platypus import (
 )
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.units import cm
 
 
@@ -99,7 +99,7 @@ div.stButton > button {
     width: 100%;
 }
 
-/* Botão de download: texto sempre visível */
+/* Botão de download */
 div[data-testid="stDownloadButton"] > button {
     background: linear-gradient(90deg, #5545D9, #8049E8) !important;
     color: #FFFFFF !important;
@@ -121,14 +121,6 @@ div[data-testid="stDownloadButton"] > button svg {
 div[data-testid="stDownloadButton"] > button:hover {
     background: #7659E8 !important;
     color: #FFFFFF !important;
-    border-color: #C4B5FD !important;
-}
-
-/* Garante contraste também no foco */
-div[data-testid="stDownloadButton"] > button:focus,
-div[data-testid="stDownloadButton"] > button:active {
-    color: #FFFFFF !important;
-    background: #654BD6 !important;
 }
 
 div.stButton > button:hover {
@@ -150,6 +142,50 @@ div.stButton > button:hover {
 
 hr {
     border-color: #5545D9;
+}
+
+/* Painel do relatório experimental */
+.relatorio-radvision {
+    background: #25294F;
+    border: 1px solid #8272E8;
+    border-left: 5px solid #A78BFA;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 12px;
+    margin-bottom: 20px;
+    color: #FFFFFF !important;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    font-weight: 500;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.20);
+}
+
+.relatorio-radvision p {
+    color: #FFFFFF !important;
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    margin-bottom: 10px;
+}
+
+.relatorio-radvision .titulo-relatorio {
+    color: #C4B5FD !important;
+    font-size: 21px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.relatorio-radvision .slogan-relatorio {
+    color: #E0D9FF !important;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.relatorio-radvision .conteudo-relatorio {
+    color: #FFFFFF !important;
+    white-space: pre-wrap;
+    font-size: 16px;
+    line-height: 1.9;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -217,7 +253,6 @@ def preparar_imagem(arquivo):
 def gerar_pdf(incidencia, principais):
 
     pdf_buffer = BytesIO()
-
     estilos = getSampleStyleSheet()
 
     titulo = ParagraphStyle(
@@ -236,15 +271,12 @@ def gerar_pdf(incidencia, principais):
         parent=estilos["Normal"],
         alignment=TA_CENTER,
         textColor=colors.HexColor("#555555"),
-        fontName="Helvetica",
-        fontSize=10,
-        leading=14
+        fontSize=10
     )
 
     subtitulo = ParagraphStyle(
         "SubtituloRADVISION",
         parent=estilos["Heading2"],
-        alignment=TA_LEFT,
         textColor=colors.HexColor("#5545C7"),
         fontName="Helvetica-Bold",
         fontSize=14,
@@ -256,58 +288,31 @@ def gerar_pdf(incidencia, principais):
     texto = ParagraphStyle(
         "TextoRADVISION",
         parent=estilos["BodyText"],
-        alignment=TA_LEFT,
         textColor=colors.HexColor("#222222"),
-        fontName="Helvetica",
         fontSize=10,
         leading=15
     )
 
-    aviso = ParagraphStyle(
-        "AvisoRADVISION",
-        parent=texto,
-        textColor=colors.HexColor("#333333"),
-        fontSize=9,
-        leading=14,
-        spaceBefore=12
-    )
-
-    elementos = []
-
-    elementos.append(Paragraph("RADVISION IA", titulo))
-
-    elementos.append(
+    elementos = [
+        Paragraph("RADVISION IA", titulo),
         Paragraph(
             "Tecnologia e precisão em cada imagem.",
             slogan
-        )
-    )
-
-    elementos.append(Spacer(1, 25))
-
-    elementos.append(
-        Paragraph("RELATÓRIO EXPERIMENTAL", subtitulo)
-    )
-
-    elementos.append(
+        ),
+        Spacer(1, 25),
+        Paragraph("RELATÓRIO EXPERIMENTAL", subtitulo),
         Paragraph(
             f"<b>Incidência informada:</b> {incidencia}",
             texto
-        )
-    )
-
-    elementos.append(Spacer(1, 15))
-
-    elementos.append(
+        ),
+        Spacer(1, 15),
         Paragraph(
             "PRINCIPAIS ACHADOS IDENTIFICADOS",
             subtitulo
         )
-    )
-
-    dados_pdf = [
-        ["Achado identificado", "Escore do modelo"]
     ]
+
+    dados_pdf = [["Achado identificado", "Escore do modelo"]]
 
     for nome, valor in principais:
         dados_pdf.append([
@@ -322,81 +327,23 @@ def gerar_pdf(incidencia, principais):
     )
 
     tabela_pdf.setStyle(TableStyle([
-        (
-            "BACKGROUND",
-            (0, 0),
-            (-1, 0),
-            colors.HexColor("#5545C7")
-        ),
-        (
-            "TEXTCOLOR",
-            (0, 0),
-            (-1, 0),
-            colors.white
-        ),
-        (
-            "FONTNAME",
-            (0, 0),
-            (-1, 0),
-            "Helvetica-Bold"
-        ),
-        (
-            "FONTNAME",
-            (0, 1),
-            (-1, -1),
-            "Helvetica"
-        ),
-        (
-            "TEXTCOLOR",
-            (0, 1),
-            (-1, -1),
-            colors.HexColor("#222222")
-        ),
-        (
-            "BACKGROUND",
-            (0, 1),
-            (-1, -1),
-            colors.HexColor("#F3F1FA")
-        ),
-        (
-            "GRID",
-            (0, 0),
-            (-1, -1),
-            0.5,
-            colors.HexColor("#CCCCCC")
-        ),
-        (
-            "ALIGN",
-            (1, 0),
-            (1, -1),
-            "CENTER"
-        ),
-        (
-            "VALIGN",
-            (0, 0),
-            (-1, -1),
-            "MIDDLE"
-        ),
-        (
-            "PADDING",
-            (0, 0),
-            (-1, -1),
-            9
-        )
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#5545C7")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+        ("TEXTCOLOR", (0, 1), (-1, -1), colors.HexColor("#222222")),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#F3F1FA")),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+        ("ALIGN", (1, 0), (1, -1), "CENTER"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("PADDING", (0, 0), (-1, -1), 9)
     ]))
 
-    elementos.append(tabela_pdf)
-
-    elementos.append(Spacer(1, 25))
-
-    elementos.append(
-        Paragraph(
-            "<b>OBSERVAÇÃO IMPORTANTE</b>",
-            subtitulo
-        )
-    )
-
-    elementos.append(
+    elementos.extend([
+        Spacer(1, 10),
+        tabela_pdf,
+        Spacer(1, 25),
+        Paragraph("OBSERVAÇÃO IMPORTANTE", subtitulo),
         Paragraph(
             "Os valores apresentados são escores experimentais "
             "produzidos pelo modelo computacional e não representam "
@@ -406,37 +353,30 @@ def gerar_pdf(incidencia, principais):
             "ser utilizado para diagnóstico ou decisões clínicas. "
             "Os resultados não substituem a avaliação de um "
             "profissional habilitado.",
-            aviso
+            texto
         )
-    )
+    ])
 
     def rodape(canvas, documento):
         canvas.saveState()
-
         largura, altura = A4
 
         canvas.setStrokeColor(colors.HexColor("#5545C7"))
-        canvas.setLineWidth(1)
-
         canvas.line(
-            2 * cm,
-            1.7 * cm,
-            largura - 2 * cm,
-            1.7 * cm
+            2 * cm, 1.7 * cm,
+            largura - 2 * cm, 1.7 * cm
         )
 
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(colors.HexColor("#666666"))
 
         canvas.drawString(
-            2 * cm,
-            1.2 * cm,
+            2 * cm, 1.2 * cm,
             "RADVISION IA | Projeto acadêmico"
         )
 
         canvas.drawRightString(
-            largura - 2 * cm,
-            1.2 * cm,
+            largura - 2 * cm, 1.2 * cm,
             f"Página {documento.page}"
         )
 
@@ -460,7 +400,6 @@ def gerar_pdf(incidencia, principais):
     )
 
     pdf_buffer.seek(0)
-
     return pdf_buffer.getvalue()
 
 
@@ -471,7 +410,6 @@ def gerar_pdf(incidencia, principais):
 def analisar_radiografia(arquivo, incidencia):
 
     modelo = carregar_modelo()
-
     imagem, entrada = preparar_imagem(arquivo)
 
     entrada = entrada.to("cpu")
@@ -512,15 +450,9 @@ def analisar_radiografia(arquivo, incidencia):
     ]
 
     ax.barh(nomes[::-1], valores[::-1])
-
-    ax.set_title(
-        "RADVISION IA | Principais resultados",
-        fontsize=15
-    )
-
+    ax.set_title("RADVISION IA | Principais resultados", fontsize=15)
     ax.set_xlabel("Escore do modelo")
     ax.grid(axis="x", alpha=0.2)
-
     fig.tight_layout()
 
     # MAPA DE SENSIBILIDADE
@@ -529,15 +461,12 @@ def analisar_radiografia(arquivo, incidencia):
     entrada_mapa.requires_grad_(True)
 
     modelo.zero_grad()
-
     saida = modelo(entrada_mapa)
 
     indice_maior = int(np.argmax(pontuacoes))
-
     saida[0, indice_maior].backward()
 
     gradientes = entrada_mapa.grad.abs()
-
     mapa = gradientes[0].max(dim=0)[0].detach().numpy()
 
     mapa = (mapa - mapa.min()) / (
@@ -545,20 +474,15 @@ def analisar_radiografia(arquivo, incidencia):
     )
 
     fig_mapa, ax_mapa = plt.subplots(figsize=(7, 7))
-
     ax_mapa.imshow(imagem[0], cmap="gray")
     ax_mapa.imshow(mapa, cmap="jet", alpha=0.4)
-
     ax_mapa.set_title("Mapa de sensibilidade")
     ax_mapa.axis("off")
-
     fig_mapa.tight_layout()
 
-    # RELATÓRIO NA TELA
+    # TEXTO DO RELATÓRIO
 
     texto_relatorio = (
-        "RADVISION IA\n"
-        "Tecnologia e precisão em cada imagem.\n\n"
         "Análise computacional concluída.\n\n"
         f"Incidência informada: {incidencia}\n\n"
         "Principais achados identificados:\n"
@@ -577,8 +501,6 @@ def analisar_radiografia(arquivo, incidencia):
         "Esta ferramenta não substitui a avaliação "
         "de um profissional habilitado."
     )
-
-    # PDF
 
     pdf = gerar_pdf(incidencia, principais)
 
@@ -635,12 +557,7 @@ with coluna_imagem:
 
     incidencia = st.selectbox(
         "Incidência radiográfica",
-        [
-            "Não informada",
-            "AP",
-            "PA",
-            "Perfil"
-        ]
+        ["Não informada", "AP", "PA", "Perfil"]
     )
 
     if arquivo is not None:
@@ -666,12 +583,10 @@ with coluna_resultado:
             st.warning("Envie uma radiografia primeiro.")
 
         else:
-
             try:
                 with st.spinner(
                     "Realizando análise computacional..."
                 ):
-
                     tabela, grafico, mapa, relatorio, pdf = (
                         analisar_radiografia(
                             arquivo,
@@ -705,7 +620,24 @@ with coluna_resultado:
 
                 st.markdown("### Relatório experimental")
 
-                st.text(relatorio)
+                # PAINEL NOVO COM TEXTO MAIS NÍTIDO
+
+                st.markdown(
+                    f"""
+                    <div class="relatorio-radvision">
+                        <div class="titulo-relatorio">
+                            RADVISION IA
+                        </div>
+                        <div class="slogan-relatorio">
+                            Tecnologia e precisão em cada imagem.
+                        </div>
+                        <div class="conteudo-relatorio">
+                            {relatorio.replace(chr(10), '<br>')}
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
                 st.download_button(
                     label="📄 BAIXAR RELATÓRIO EM PDF",
