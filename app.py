@@ -16,11 +16,12 @@ from reportlab.platypus import (
 )
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.units import cm
 
 
 # ==========================================
-# CONFIGURAÇÃO DA RADVISION IA
+# CONFIGURAÇÃO
 # ==========================================
 
 st.set_page_config(
@@ -87,19 +88,52 @@ h2, h3 {
     color: #C4B5FD;
 }
 
+/* Botão principal */
 div.stButton > button {
-    background: linear-gradient(90deg, #5545D9, #8049E8);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: 700;
-    padding: 12px 25px;
+    background: linear-gradient(90deg, #5545D9, #8049E8) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    padding: 12px 25px !important;
     width: 100%;
 }
 
+/* Botão de download: texto sempre visível */
+div[data-testid="stDownloadButton"] > button {
+    background: linear-gradient(90deg, #5545D9, #8049E8) !important;
+    color: #FFFFFF !important;
+    border: 1px solid #A78BFA !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    opacity: 1 !important;
+}
+
+div[data-testid="stDownloadButton"] > button p,
+div[data-testid="stDownloadButton"] > button span,
+div[data-testid="stDownloadButton"] > button svg {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+}
+
+div[data-testid="stDownloadButton"] > button:hover {
+    background: #7659E8 !important;
+    color: #FFFFFF !important;
+    border-color: #C4B5FD !important;
+}
+
+/* Garante contraste também no foco */
+div[data-testid="stDownloadButton"] > button:focus,
+div[data-testid="stDownloadButton"] > button:active {
+    color: #FFFFFF !important;
+    background: #654BD6 !important;
+}
+
 div.stButton > button:hover {
-    background: #7659E8;
-    color: white;
+    background: #7659E8 !important;
+    color: white !important;
 }
 
 [data-testid="stFileUploader"] {
@@ -150,15 +184,14 @@ def preparar_imagem(arquivo):
     caminho = arquivo_temporario.name
     arquivo_temporario.close()
 
-    imagem_pil.save(caminho)
+    try:
+        imagem_pil.save(caminho)
+        imagem = xrv.utils.load_image(caminho)
+    finally:
+        if os.path.exists(caminho):
+            os.remove(caminho)
 
-    imagem = xrv.utils.load_image(caminho)
-
-    os.remove(caminho)
-
-    # CORTE CENTRAL PARA DEIXAR A IMAGEM QUADRADA
     altura, largura = imagem.shape[-2:]
-
     lado = min(altura, largura)
 
     topo = (altura - lado) // 2
@@ -170,12 +203,265 @@ def preparar_imagem(arquivo):
         esquerda:esquerda + lado
     ]
 
-    # REDIMENSIONAMENTO PARA 224 x 224
     imagem = xrv.datasets.XRayResizer(224)(imagem)
 
     tensor = torch.from_numpy(imagem).unsqueeze(0).float()
 
     return imagem, tensor
+
+
+# ==========================================
+# GERAÇÃO DO PDF
+# ==========================================
+
+def gerar_pdf(incidencia, principais):
+
+    pdf_buffer = BytesIO()
+
+    estilos = getSampleStyleSheet()
+
+    titulo = ParagraphStyle(
+        "TituloRADVISION",
+        parent=estilos["Title"],
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#5545C7"),
+        fontName="Helvetica-Bold",
+        fontSize=23,
+        leading=28,
+        spaceAfter=8
+    )
+
+    slogan = ParagraphStyle(
+        "SloganRADVISION",
+        parent=estilos["Normal"],
+        alignment=TA_CENTER,
+        textColor=colors.HexColor("#555555"),
+        fontName="Helvetica",
+        fontSize=10,
+        leading=14
+    )
+
+    subtitulo = ParagraphStyle(
+        "SubtituloRADVISION",
+        parent=estilos["Heading2"],
+        alignment=TA_LEFT,
+        textColor=colors.HexColor("#5545C7"),
+        fontName="Helvetica-Bold",
+        fontSize=14,
+        leading=18,
+        spaceBefore=12,
+        spaceAfter=10
+    )
+
+    texto = ParagraphStyle(
+        "TextoRADVISION",
+        parent=estilos["BodyText"],
+        alignment=TA_LEFT,
+        textColor=colors.HexColor("#222222"),
+        fontName="Helvetica",
+        fontSize=10,
+        leading=15
+    )
+
+    aviso = ParagraphStyle(
+        "AvisoRADVISION",
+        parent=texto,
+        textColor=colors.HexColor("#333333"),
+        fontSize=9,
+        leading=14,
+        spaceBefore=12
+    )
+
+    elementos = []
+
+    elementos.append(Paragraph("RADVISION IA", titulo))
+
+    elementos.append(
+        Paragraph(
+            "Tecnologia e precisão em cada imagem.",
+            slogan
+        )
+    )
+
+    elementos.append(Spacer(1, 25))
+
+    elementos.append(
+        Paragraph("RELATÓRIO EXPERIMENTAL", subtitulo)
+    )
+
+    elementos.append(
+        Paragraph(
+            f"<b>Incidência informada:</b> {incidencia}",
+            texto
+        )
+    )
+
+    elementos.append(Spacer(1, 15))
+
+    elementos.append(
+        Paragraph(
+            "PRINCIPAIS ACHADOS IDENTIFICADOS",
+            subtitulo
+        )
+    )
+
+    dados_pdf = [
+        ["Achado identificado", "Escore do modelo"]
+    ]
+
+    for nome, valor in principais:
+        dados_pdf.append([
+            traduzir_achado(nome),
+            f"{float(valor):.4f}"
+        ])
+
+    tabela_pdf = Table(
+        dados_pdf,
+        colWidths=[10 * cm, 6 * cm],
+        repeatRows=1
+    )
+
+    tabela_pdf.setStyle(TableStyle([
+        (
+            "BACKGROUND",
+            (0, 0),
+            (-1, 0),
+            colors.HexColor("#5545C7")
+        ),
+        (
+            "TEXTCOLOR",
+            (0, 0),
+            (-1, 0),
+            colors.white
+        ),
+        (
+            "FONTNAME",
+            (0, 0),
+            (-1, 0),
+            "Helvetica-Bold"
+        ),
+        (
+            "FONTNAME",
+            (0, 1),
+            (-1, -1),
+            "Helvetica"
+        ),
+        (
+            "TEXTCOLOR",
+            (0, 1),
+            (-1, -1),
+            colors.HexColor("#222222")
+        ),
+        (
+            "BACKGROUND",
+            (0, 1),
+            (-1, -1),
+            colors.HexColor("#F3F1FA")
+        ),
+        (
+            "GRID",
+            (0, 0),
+            (-1, -1),
+            0.5,
+            colors.HexColor("#CCCCCC")
+        ),
+        (
+            "ALIGN",
+            (1, 0),
+            (1, -1),
+            "CENTER"
+        ),
+        (
+            "VALIGN",
+            (0, 0),
+            (-1, -1),
+            "MIDDLE"
+        ),
+        (
+            "PADDING",
+            (0, 0),
+            (-1, -1),
+            9
+        )
+    ]))
+
+    elementos.append(tabela_pdf)
+
+    elementos.append(Spacer(1, 25))
+
+    elementos.append(
+        Paragraph(
+            "<b>OBSERVAÇÃO IMPORTANTE</b>",
+            subtitulo
+        )
+    )
+
+    elementos.append(
+        Paragraph(
+            "Os valores apresentados são escores experimentais "
+            "produzidos pelo modelo computacional e não representam "
+            "probabilidades diagnósticas. O mapa de sensibilidade "
+            "não confirma a localização de lesões. Este sistema "
+            "possui finalidade acadêmica e experimental, não devendo "
+            "ser utilizado para diagnóstico ou decisões clínicas. "
+            "Os resultados não substituem a avaliação de um "
+            "profissional habilitado.",
+            aviso
+        )
+    )
+
+    def rodape(canvas, documento):
+        canvas.saveState()
+
+        largura, altura = A4
+
+        canvas.setStrokeColor(colors.HexColor("#5545C7"))
+        canvas.setLineWidth(1)
+
+        canvas.line(
+            2 * cm,
+            1.7 * cm,
+            largura - 2 * cm,
+            1.7 * cm
+        )
+
+        canvas.setFont("Helvetica", 8)
+        canvas.setFillColor(colors.HexColor("#666666"))
+
+        canvas.drawString(
+            2 * cm,
+            1.2 * cm,
+            "RADVISION IA | Projeto acadêmico"
+        )
+
+        canvas.drawRightString(
+            largura - 2 * cm,
+            1.2 * cm,
+            f"Página {documento.page}"
+        )
+
+        canvas.restoreState()
+
+    documento = SimpleDocTemplate(
+        pdf_buffer,
+        pagesize=A4,
+        rightMargin=2 * cm,
+        leftMargin=2 * cm,
+        topMargin=2 * cm,
+        bottomMargin=2.3 * cm,
+        title="Relatório experimental RADVISION IA",
+        author="RADVISION IA"
+    )
+
+    documento.build(
+        elementos,
+        onFirstPage=rodape,
+        onLaterPages=rodape
+    )
+
+    pdf_buffer.seek(0)
+
+    return pdf_buffer.getvalue()
 
 
 # ==========================================
@@ -190,7 +476,6 @@ def analisar_radiografia(arquivo, incidencia):
 
     entrada = entrada.to("cpu")
 
-    # ANÁLISE COMPUTACIONAL
     with torch.inference_mode():
         resultado = modelo(entrada)
 
@@ -212,9 +497,7 @@ def analisar_radiografia(arquivo, incidencia):
         for nome, valor in analise
     ]
 
-    # ======================================
     # GRÁFICO
-    # ======================================
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -240,9 +523,7 @@ def analisar_radiografia(arquivo, incidencia):
 
     fig.tight_layout()
 
-    # ======================================
     # MAPA DE SENSIBILIDADE
-    # ======================================
 
     entrada_mapa = entrada.detach().clone()
     entrada_mapa.requires_grad_(True)
@@ -273,9 +554,7 @@ def analisar_radiografia(arquivo, incidencia):
 
     fig_mapa.tight_layout()
 
-    # ======================================
-    # RELATÓRIO
-    # ======================================
+    # RELATÓRIO NA TELA
 
     texto_relatorio = (
         "RADVISION IA\n"
@@ -299,107 +578,16 @@ def analisar_radiografia(arquivo, incidencia):
         "de um profissional habilitado."
     )
 
-    # ======================================
-    # GERAÇÃO DO PDF
-    # ======================================
+    # PDF
 
-    pdf_buffer = BytesIO()
-
-    estilos = getSampleStyleSheet()
-
-    titulo = ParagraphStyle(
-        "TituloRADVISION",
-        parent=estilos["Title"],
-        alignment=TA_CENTER,
-        textColor=colors.HexColor("#5545C7"),
-        fontSize=22
-    )
-
-    slogan = ParagraphStyle(
-        "SloganRADVISION",
-        parent=estilos["Heading2"],
-        alignment=TA_CENTER,
-        textColor=colors.HexColor("#5545C7")
-    )
-
-    elementos = [
-        Paragraph("RADVISION IA", titulo),
-        Paragraph(
-            "Tecnologia e precisão em cada imagem.",
-            slogan
-        ),
-        Spacer(1, 20),
-        Paragraph(
-            "RELATÓRIO EXPERIMENTAL",
-            estilos["Heading2"]
-        ),
-        Paragraph(
-            f"Incidência informada: {incidencia}",
-            estilos["BodyText"]
-        ),
-        Spacer(1, 15),
-        Paragraph(
-            "Principais achados identificados pelo modelo:",
-            estilos["Heading3"]
-        )
-    ]
-
-    dados_pdf = [
-        ["Achado identificado", "Escore"]
-    ]
-
-    for nome, valor in principais:
-        dados_pdf.append([
-            traduzir_achado(nome),
-            f"{float(valor):.4f}"
-        ])
-
-    tabela_pdf = Table(
-        dados_pdf,
-        colWidths=[300, 100]
-    )
-
-    tabela_pdf.setStyle(TableStyle([
-        (
-            "BACKGROUND",
-            (0, 0),
-            (-1, 0),
-            colors.HexColor("#5545C7")
-        ),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("PADDING", (0, 0), (-1, -1), 8)
-    ]))
-
-    elementos.extend([
-        Spacer(1, 10),
-        tabela_pdf,
-        Spacer(1, 20),
-        Paragraph(
-            "<b>Importante:</b> os valores apresentados são "
-            "escores experimentais, não probabilidades "
-            "diagnósticas. O mapa de sensibilidade não confirma "
-            "lesões. Este sistema é acadêmico e não deve ser "
-            "utilizado para diagnóstico ou decisões clínicas.",
-            estilos["BodyText"]
-        )
-    ])
-
-    documento = SimpleDocTemplate(
-        pdf_buffer,
-        pagesize=A4
-    )
-
-    documento.build(elementos)
-
-    pdf_buffer.seek(0)
+    pdf = gerar_pdf(incidencia, principais)
 
     return (
         tabela_resultados,
         fig,
         fig_mapa,
         texto_relatorio,
-        pdf_buffer.getvalue()
+        pdf
     )
 
 
@@ -520,9 +708,9 @@ with coluna_resultado:
                 st.text(relatorio)
 
                 st.download_button(
-                    label="BAIXAR RELATÓRIO EM PDF",
+                    label="📄 BAIXAR RELATÓRIO EM PDF",
                     data=pdf,
-                    file_name="relatorio_radv_is ion.pdf".replace(" ", ""),
+                    file_name="relatorio_radvision_ia.pdf",
                     mime="application/pdf",
                     use_container_width=True
                 )
