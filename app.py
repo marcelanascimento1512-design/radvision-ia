@@ -2,6 +2,7 @@
 import os
 import tempfile
 from io import BytesIO
+from html import escape
 
 import streamlit as st
 import numpy as np
@@ -134,7 +135,7 @@ div.stButton > button:hover {
     padding: 12px;
 }
 
-/* INDICADORES DE INCIDÊNCIA E ESCORE */
+/* INDICADORES */
 
 [data-testid="stMetric"] {
     background: #25294F !important;
@@ -144,12 +145,7 @@ div.stButton > button:hover {
     box-shadow: 0 4px 15px rgba(0,0,0,0.25);
 }
 
-[data-testid="stMetricLabel"] {
-    color: #E0D9FF !important;
-    font-size: 16px !important;
-    font-weight: 700 !important;
-}
-
+[data-testid="stMetricLabel"],
 [data-testid="stMetricLabel"] p,
 [data-testid="stMetricLabel"] div,
 [data-testid="stMetricLabel"] span {
@@ -158,75 +154,77 @@ div.stButton > button:hover {
     font-weight: 700 !important;
 }
 
-[data-testid="stMetricValue"] {
-    color: #FFFFFF !important;
-    font-size: 42px !important;
-    font-weight: 800 !important;
-    line-height: 1.3 !important;
-}
-
+[data-testid="stMetricValue"],
 [data-testid="stMetricValue"] div,
 [data-testid="stMetricValue"] p,
 [data-testid="stMetricValue"] span {
     color: #FFFFFF !important;
     font-size: 42px !important;
     font-weight: 800 !important;
-}
-
-[data-testid="stMetricDelta"] {
-    color: #FFFFFF !important;
-}
-
-[data-testid="stMetric"] svg {
-    color: #FFFFFF !important;
-    fill: #FFFFFF !important;
+    line-height: 1.3 !important;
 }
 
 hr {
     border-color: #5545D9;
 }
 
+/* RELATÓRIO NA TELA */
+
 .relatorio-radvision {
     background: #25294F;
     border: 1px solid #8272E8;
     border-left: 5px solid #A78BFA;
-    border-radius: 12px;
-    padding: 24px;
+    border-radius: 14px;
+    padding: 25px;
     margin-top: 12px;
     margin-bottom: 20px;
     color: #FFFFFF !important;
     font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    line-height: 1.8;
-    font-weight: 500;
     box-shadow: 0 4px 18px rgba(0,0,0,0.20);
 }
 
-.relatorio-radvision p {
-    color: #FFFFFF !important;
-    font-size: 16px !important;
-    line-height: 1.8 !important;
-    margin-bottom: 10px;
-}
-
-.relatorio-radvision .titulo-relatorio {
-    color: #C4B5FD !important;
-    font-size: 21px;
+.relatorio-radvision .marca {
+    color: #C4B5FD;
+    font-size: 23px;
     font-weight: 800;
-    margin-bottom: 4px;
 }
 
-.relatorio-radvision .slogan-relatorio {
-    color: #E0D9FF !important;
+.relatorio-radvision .slogan {
+    color: #E0D9FF;
     font-size: 13px;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
 }
 
-.relatorio-radvision .conteudo-relatorio {
-    color: #FFFFFF !important;
-    white-space: pre-wrap;
-    font-size: 16px;
-    line-height: 1.9;
+.relatorio-radvision .secao {
+    color: #C4B5FD;
+    font-size: 17px;
+    font-weight: 800;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #55558A;
+    padding-bottom: 6px;
+}
+
+.relatorio-radvision .texto {
+    color: #FFFFFF;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+.relatorio-radvision .destaque {
+    color: #FFFFFF;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.relatorio-radvision .aviso {
+    background: #34345D;
+    border-radius: 8px;
+    padding: 14px;
+    color: #F3EFFF;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 18px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -293,7 +291,7 @@ def identificar_incidencia(arquivo):
 
 
 # ==========================================
-# CARREGAMENTO DO MODELO RADIOGRÁFICO
+# MODELO DE ANÁLISE RADIOGRÁFICA
 # ==========================================
 
 @st.cache_resource
@@ -356,10 +354,100 @@ def preparar_imagem(arquivo):
 
 
 # ==========================================
+# CONSTRUÇÃO DO RELATÓRIO ESTRUTURADO
+# ==========================================
+
+def construir_relatorio(
+    incidencia,
+    escore_incidencia,
+    principais
+):
+
+    linhas = []
+
+    linhas.append(
+        "RESUMO DA ANÁLISE COMPUTACIONAL"
+    )
+
+    linhas.append(
+        "O sistema realizou uma análise experimental "
+        "da imagem radiográfica enviada."
+    )
+
+    linhas.append("")
+
+    linhas.append("1. IDENTIFICAÇÃO DA INCIDÊNCIA")
+
+    linhas.append(
+        f"Incidência sugerida pelo classificador: {incidencia}"
+    )
+
+    linhas.append(
+        f"Escore do classificador: {escore_incidencia:.2f}%"
+    )
+
+    linhas.append(
+        "A classificação automática deve ser conferida "
+        "por profissional habilitado."
+    )
+
+    linhas.append("")
+
+    linhas.append("2. PRINCIPAIS ESCORES DO MODELO")
+
+    if principais:
+        for nome, valor in principais:
+            linhas.append(
+                f"- {traduzir_achado(nome)}: {float(valor):.4f}"
+            )
+    else:
+        linhas.append(
+            "Não foram disponibilizados resultados."
+        )
+
+    linhas.append("")
+
+    linhas.append("3. OBSERVAÇÕES TÉCNICAS")
+
+    linhas.append(
+        "Os resultados correspondem às saídas de um modelo "
+        "computacional aplicado à imagem."
+    )
+
+    linhas.append(
+        "Os escores não representam probabilidades diagnósticas "
+        "e não confirmam a presença ou ausência de doenças."
+    )
+
+    linhas.append(
+        "O mapa de sensibilidade representa uma visualização "
+        "experimental da resposta do modelo, não sendo uma "
+        "confirmação da localização de alterações."
+    )
+
+    linhas.append("")
+
+    linhas.append("4. CONCLUSÃO EXPERIMENTAL")
+
+    linhas.append(
+        "A análise computacional foi concluída e os resultados "
+        "foram organizados para fins acadêmicos e demonstrativos."
+    )
+
+    linhas.append(
+        "A interpretação da radiografia deve considerar a "
+        "qualidade da imagem, o contexto clínico e a avaliação "
+        "de um profissional habilitado."
+    )
+
+    return "\n".join(linhas)
+
+
+# ==========================================
 # GERAÇÃO DO PDF
 # ==========================================
 
-def gerar_pdf(incidencia, escore, principais):
+def gerar_pdf(incidencia, escore, principais, relatorio):
 
     pdf_buffer = BytesIO()
     estilos = getSampleStyleSheet()
@@ -399,7 +487,8 @@ def gerar_pdf(incidencia, escore, principais):
         parent=estilos["BodyText"],
         textColor=colors.HexColor("#222222"),
         fontSize=10,
-        leading=15
+        leading=15,
+        spaceAfter=6
     )
 
     elementos = [
@@ -409,20 +498,17 @@ def gerar_pdf(incidencia, escore, principais):
             slogan
         ),
         Spacer(1, 25),
-        Paragraph("RELATÓRIO EXPERIMENTAL", subtitulo),
+        Paragraph("RELATÓRIO EXPERIMENTAL ESTRUTURADO", subtitulo),
         Paragraph(
-            f"<b>Incidência identificada automaticamente:</b> {incidencia}",
+            f"<b>Incidência sugerida:</b> {escape(incidencia)}",
             texto
         ),
         Paragraph(
-            f"<b>Escore de classificação:</b> {escore:.2f}%",
+            f"<b>Escore do classificador:</b> {escore:.2f}%",
             texto
         ),
-        Spacer(1, 15),
-        Paragraph(
-            "PRINCIPAIS ACHADOS IDENTIFICADOS",
-            subtitulo
-        )
+        Spacer(1, 12),
+        Paragraph("PRINCIPAIS ESCORES DO MODELO", subtitulo)
     ]
 
     dados_pdf = [
@@ -431,7 +517,7 @@ def gerar_pdf(incidencia, escore, principais):
 
     for nome, valor in principais:
         dados_pdf.append([
-            traduzir_achado(nome),
+            escape(traduzir_achado(nome)),
             f"{float(valor):.4f}"
         ])
 
@@ -457,17 +543,32 @@ def gerar_pdf(incidencia, escore, principais):
     elementos.extend([
         Spacer(1, 10),
         tabela_pdf,
-        Spacer(1, 25),
-        Paragraph("OBSERVAÇÃO IMPORTANTE", subtitulo),
+        Spacer(1, 20),
+        Paragraph("RELATÓRIO DESCRITIVO", subtitulo)
+    ])
+
+    secoes = relatorio.split("\n\n")
+
+    for secao in secoes:
+
+        texto_secao = escape(secao).replace("\n", "<br/>")
+
+        if texto_secao.strip():
+            elementos.append(
+                Paragraph(texto_secao, texto)
+            )
+            elementos.append(Spacer(1, 5))
+
+    elementos.extend([
+        Spacer(1, 15),
+        Paragraph("AVISO IMPORTANTE", subtitulo),
         Paragraph(
-            "Os valores apresentados são escores experimentais "
-            "produzidos pelo modelo computacional e não representam "
-            "probabilidades diagnósticas. O escore da incidência "
-            "também não garante que a classificação esteja correta. "
+            "Este sistema possui finalidade acadêmica e experimental. "
+            "Os escores não representam probabilidades diagnósticas. "
+            "A classificação da incidência não garante acerto. "
             "O mapa de sensibilidade não confirma a localização de "
-            "lesões. Este sistema possui finalidade acadêmica e "
-            "experimental, não devendo ser utilizado para diagnóstico "
-            "ou decisões clínicas. Os resultados não substituem a "
+            "lesões. O RADVISION IA não deve ser utilizado para "
+            "diagnóstico ou decisões clínicas e não substitui a "
             "avaliação de um profissional habilitado.",
             texto
         )
@@ -622,35 +723,19 @@ def analisar_radiografia(arquivo):
 
     fig_mapa.tight_layout()
 
-    # TEXTO DO RELATÓRIO
+    # RELATÓRIO ESTRUTURADO
 
-    texto_relatorio = (
-        "Análise computacional concluída.\n\n"
-        f"Incidência identificada automaticamente: {incidencia}\n"
-        f"Escore de classificação: {escore_incidencia:.2f}%\n\n"
-        "Principais achados identificados:\n"
-    )
-
-    for nome, valor in principais:
-
-        texto_relatorio += (
-            f"- {traduzir_achado(nome)}: "
-            f"{float(valor):.4f}\n"
-        )
-
-    texto_relatorio += (
-        "\nOs escores são experimentais e não representam "
-        "probabilidades diagnósticas. O escore de classificação "
-        "da incidência não garante que a identificação esteja "
-        "correta. O mapa de sensibilidade não confirma a "
-        "localização de lesões. Esta ferramenta não substitui "
-        "a avaliação de um profissional habilitado."
+    relatorio = construir_relatorio(
+        incidencia,
+        escore_incidencia,
+        principais
     )
 
     pdf = gerar_pdf(
         incidencia,
         escore_incidencia,
-        principais
+        principais,
+        relatorio
     )
 
     return (
@@ -659,7 +744,7 @@ def analisar_radiografia(arquivo):
         tabela_resultados,
         fig,
         fig_mapa,
-        texto_relatorio,
+        relatorio,
         pdf
     )
 
@@ -757,7 +842,7 @@ with coluna_resultado:
                     "Análise computacional concluída!"
                 )
 
-                st.markdown("### Incidência identificada")
+                st.markdown("### Identificação da incidência")
 
                 coluna_inc, coluna_escore = st.columns(2)
 
@@ -774,8 +859,8 @@ with coluna_resultado:
                     )
 
                 st.caption(
-                    "O escore representa a pontuação do classificador, "
-                    "não uma garantia de acerto."
+                    "Pontuação do classificador experimental. "
+                    "Não representa garantia de acerto."
                 )
 
                 st.markdown("### Achados identificados")
@@ -800,19 +885,50 @@ with coluna_resultado:
                     use_container_width=True
                 )
 
-                st.markdown("### Relatório experimental")
+                st.markdown("### Relatório experimental estruturado")
+
+                secoes = relatorio.split("\n\n")
+
+                html_secoes = ""
+
+                for secao in secoes:
+
+                    linhas = secao.split("\n")
+
+                    titulo_secao = linhas[0]
+                    conteudo = linhas[1:]
+
+                    html_secoes += (
+                        '<div class="secao">'
+                        + escape(titulo_secao)
+                        + '</div>'
+                    )
+
+                    for linha in conteudo:
+
+                        if linha.strip():
+                            html_secoes += (
+                                '<div class="texto">'
+                                + escape(linha)
+                                + '</div>'
+                            )
 
                 st.markdown(
                     f"""
                     <div class="relatorio-radvision">
-                        <div class="titulo-relatorio">
-                            RADVISION IA
-                        </div>
-                        <div class="slogan-relatorio">
+                        <div class="marca">RADVISION IA</div>
+
+                        <div class="slogan">
                             Tecnologia e precisão em cada imagem.
                         </div>
-                        <div class="conteudo-relatorio">
-                            {relatorio.replace(chr(10), '<br>')}
+
+                        {html_secoes}
+
+                        <div class="aviso">
+                            <b>AVISO:</b> ferramenta experimental
+                            para fins acadêmicos. Os resultados
+                            não representam diagnóstico e não
+                            substituem a avaliação profissional.
                         </div>
                     </div>
                     """,
