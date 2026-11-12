@@ -1,5 +1,6 @@
 
 import os
+import gc
 import tempfile
 from io import BytesIO
 from html import escape
@@ -234,7 +235,11 @@ hr {
 # MODELO DE IDENTIFICAÇÃO DA INCIDÊNCIA
 # ==========================================
 
-@st.cache_resource
+# IMPORTANTE:
+# Este modelo não fica armazenado em cache.
+# Ele será liberado após a identificação da incidência,
+# antes de carregar o segundo modelo.
+
 def carregar_modelo_incidencia():
 
     if not hasattr(PreTrainedModel, "all_tied_weights_keys"):
@@ -286,6 +291,18 @@ def identificar_incidencia(arquivo):
     escore = float(
         pontuacoes_view[indice].item()
     ) * 100
+
+    # LIBERAÇÃO DA MEMÓRIA DO PRIMEIRO MODELO
+
+    del saida_view
+    del pontuacoes_view
+    del entrada_view
+    del imagem_processada
+    del imagem_array
+    del imagem_pil
+    del modelo_view
+
+    gc.collect()
 
     return incidencia, escore
 
@@ -637,6 +654,9 @@ def analisar_radiografia(arquivo):
         arquivo
     )
 
+    # Neste ponto, o primeiro modelo já foi liberado.
+    # Agora carregamos o modelo de análise radiográfica.
+
     modelo = carregar_modelo()
 
     imagem, entrada = preparar_imagem(arquivo)
@@ -878,12 +898,16 @@ with coluna_resultado:
                     use_container_width=True
                 )
 
+                plt.close(grafico)
+
                 st.markdown("### Mapa de sensibilidade")
 
                 st.pyplot(
                     mapa,
                     use_container_width=True
                 )
+
+                plt.close(mapa)
 
                 st.markdown("### Relatório experimental estruturado")
 
@@ -913,7 +937,6 @@ with coluna_resultado:
                                 + '</div>'
                             )
 
-                # CORREÇÃO: st.html interpreta o conteúdo HTML
                 st.html(
                     f"""
                     <div class="relatorio-radvision">
