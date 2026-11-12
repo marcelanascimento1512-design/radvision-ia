@@ -1,6 +1,7 @@
 
 import os
 import gc
+from datetime import datetime
 import tempfile
 from io import BytesIO
 from html import escape
@@ -235,7 +236,6 @@ hr {
 # MODELO DE IDENTIFICAÇÃO DA INCIDÊNCIA
 # ==========================================
 
-# IMPORTANTE:
 # Este modelo não fica armazenado em cache.
 # Ele será liberado após a identificação da incidência,
 # antes de carregar o segundo modelo.
@@ -654,7 +654,7 @@ def analisar_radiografia(arquivo):
         arquivo
     )
 
-    # Neste ponto, o primeiro modelo já foi liberado.
+    # O primeiro modelo já foi liberado.
     # Agora carregamos o modelo de análise radiográfica.
 
     modelo = carregar_modelo()
@@ -796,6 +796,17 @@ st.divider()
 
 
 # ==========================================
+# HISTÓRICO DE ANÁLISES NA SESSÃO
+# ==========================================
+
+if "historico_analises" not in st.session_state:
+    st.session_state.historico_analises = []
+
+if "resultado_atual" not in st.session_state:
+    st.session_state.resultado_atual = None
+
+
+# ==========================================
 # INTERFACE PRINCIPAL
 # ==========================================
 
@@ -810,7 +821,8 @@ with coluna_imagem:
 
     arquivo = st.file_uploader(
         "Selecionar radiografia de tórax",
-        type=["jpg", "jpeg", "png"]
+        type=["jpg", "jpeg", "png"],
+        key="uploader_radiografia"
     )
 
     if arquivo is not None:
@@ -858,112 +870,31 @@ with coluna_resultado:
                         pdf
                     ) = analisar_radiografia(arquivo)
 
-                st.success(
-                    "Análise computacional concluída!"
-                )
+                st.session_state.resultado_atual = {
+                    "incidencia": incidencia,
+                    "escore_incidencia": escore_incidencia,
+                    "tabela": tabela,
+                    "grafico": grafico,
+                    "mapa": mapa,
+                    "relatorio": relatorio,
+                    "pdf": pdf
+                }
 
-                st.markdown("### Identificação da incidência")
+                registro = {
+                    "data_hora": datetime.now().strftime(
+                        "%d/%m/%Y às %H:%M"
+                    ),
+                    "arquivo": arquivo.name,
+                    "incidencia": incidencia,
+                    "escore_incidencia": escore_incidencia,
+                    "tabela": tabela,
+                    "relatorio": relatorio,
+                    "pdf": pdf
+                }
 
-                coluna_inc, coluna_escore = st.columns(2)
-
-                with coluna_inc:
-                    st.metric(
-                        "Incidência radiográfica",
-                        incidencia
-                    )
-
-                with coluna_escore:
-                    st.metric(
-                        "Escore do classificador",
-                        f"{escore_incidencia:.2f}%"
-                    )
-
-                st.caption(
-                    "Pontuação do classificador experimental. "
-                    "Não representa garantia de acerto."
-                )
-
-                st.markdown("### Achados identificados")
-
-                st.dataframe(
-                    tabela,
-                    use_container_width=True,
-                    hide_index=True
-                )
-
-                st.markdown("### Gráfico de resultados")
-
-                st.pyplot(
-                    grafico,
-                    use_container_width=True
-                )
-
-                plt.close(grafico)
-
-                st.markdown("### Mapa de sensibilidade")
-
-                st.pyplot(
-                    mapa,
-                    use_container_width=True
-                )
-
-                plt.close(mapa)
-
-                st.markdown("### Relatório experimental estruturado")
-
-                secoes = relatorio.split("\n\n")
-
-                html_secoes = ""
-
-                for secao in secoes:
-
-                    linhas = secao.split("\n")
-
-                    titulo_secao = linhas[0]
-                    conteudo = linhas[1:]
-
-                    html_secoes += (
-                        '<div class="secao">'
-                        + escape(titulo_secao)
-                        + '</div>'
-                    )
-
-                    for linha in conteudo:
-
-                        if linha.strip():
-                            html_secoes += (
-                                '<div class="texto">'
-                                + escape(linha)
-                                + '</div>'
-                            )
-
-                st.html(
-                    f"""
-                    <div class="relatorio-radvision">
-                        <div class="marca">RADVISION IA</div>
-
-                        <div class="slogan">
-                            Tecnologia e precisão em cada imagem.
-                        </div>
-
-                        {html_secoes}
-
-                        <div class="aviso">
-                            <b>AVISO:</b> ferramenta experimental
-                            para fins acadêmicos. Os resultados
-                            não representam diagnóstico e não
-                            substituem a avaliação profissional.
-                        </div>
-                    </div>
-                    """
-                )
-
-                st.download_button(
-                    label="📄 BAIXAR RELATÓRIO EM PDF",
-                    data=pdf,
-                    file_name="relatorio_radvision_ia.pdf",
-                    mime="application/pdf",
-                    use_container_width=True
+                st.session_state.historico_analises.insert(
+                    0,
+                    registro
                 )
 
             except Exception as erro:
@@ -971,6 +902,215 @@ with coluna_resultado:
                 st.error(
                     f"Não foi possível concluir a análise: {erro}"
                 )
+
+    resultado_atual = st.session_state.resultado_atual
+
+    if resultado_atual is not None:
+
+        incidencia = resultado_atual["incidencia"]
+        escore_incidencia = resultado_atual["escore_incidencia"]
+        tabela = resultado_atual["tabela"]
+        grafico = resultado_atual["grafico"]
+        mapa = resultado_atual["mapa"]
+        relatorio = resultado_atual["relatorio"]
+        pdf = resultado_atual["pdf"]
+
+        st.success(
+            "Análise computacional concluída!"
+        )
+
+        st.markdown("### Identificação da incidência")
+
+        coluna_inc, coluna_escore = st.columns(2)
+
+        with coluna_inc:
+            st.metric(
+                "Incidência radiográfica",
+                incidencia
+            )
+
+        with coluna_escore:
+            st.metric(
+                "Escore do classificador",
+                f"{escore_incidencia:.2f}%"
+            )
+
+        st.caption(
+            "Pontuação do classificador experimental. "
+            "Não representa garantia de acerto."
+        )
+
+        st.markdown("### Achados identificados")
+
+        st.dataframe(
+            tabela,
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.markdown("### Gráfico de resultados")
+
+        st.pyplot(
+            grafico,
+            use_container_width=True
+        )
+
+        plt.close(grafico)
+
+        st.markdown("### Mapa de sensibilidade")
+
+        st.pyplot(
+            mapa,
+            use_container_width=True
+        )
+
+        plt.close(mapa)
+
+        st.markdown("### Relatório experimental estruturado")
+
+        secoes = relatorio.split("\n\n")
+
+        html_secoes = ""
+
+        for secao in secoes:
+
+            linhas = secao.split("\n")
+
+            titulo_secao = linhas[0]
+            conteudo = linhas[1:]
+
+            html_secoes += (
+                '<div class="secao">'
+                + escape(titulo_secao)
+                + '</div>'
+            )
+
+            for linha in conteudo:
+
+                if linha.strip():
+                    html_secoes += (
+                        '<div class="texto">'
+                        + escape(linha)
+                        + '</div>'
+                    )
+
+        st.html(
+            f"""
+            <div class="relatorio-radvision">
+                <div class="marca">RADVISION IA</div>
+
+                <div class="slogan">
+                    Tecnologia e precisão em cada imagem.
+                </div>
+
+                {html_secoes}
+
+                <div class="aviso">
+                    <b>AVISO:</b> ferramenta experimental
+                    para fins acadêmicos. Os resultados
+                    não representam diagnóstico e não
+                    substituem a avaliação profissional.
+                </div>
+            </div>
+            """
+        )
+
+        st.download_button(
+            label="📄 BAIXAR RELATÓRIO EM PDF",
+            data=pdf,
+            file_name="relatorio_radvision_ia.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+
+
+# ==========================================
+# HISTÓRICO DE ANÁLISES
+# ==========================================
+
+st.divider()
+
+st.markdown("## HISTÓRICO DE ANÁLISES")
+
+st.caption(
+    "As análises ficam disponíveis enquanto esta sessão do "
+    "aplicativo estiver aberta. Ao reiniciar a sessão, o histórico será apagado."
+)
+
+if st.session_state.historico_analises:
+
+    coluna_historico, coluna_limpar = st.columns([3, 1])
+
+    with coluna_historico:
+        st.markdown(
+            f"**Análises realizadas nesta sessão: "
+            f"{len(st.session_state.historico_analises)}**"
+        )
+
+    with coluna_limpar:
+
+        if st.button(
+            "LIMPAR HISTÓRICO",
+            use_container_width=True
+        ):
+
+            st.session_state.historico_analises = []
+            st.rerun()
+
+    for indice, item in enumerate(
+        st.session_state.historico_analises
+    ):
+
+        titulo_item = (
+            f"{item['data_hora']} | {item['arquivo']} | "
+            f"Incidência: {item['incidencia']}"
+        )
+
+        with st.expander(titulo_item):
+
+            coluna_inc_hist, coluna_escore_hist = st.columns(2)
+
+            with coluna_inc_hist:
+                st.metric(
+                    "Incidência sugerida",
+                    item["incidencia"]
+                )
+
+            with coluna_escore_hist:
+                st.metric(
+                    "Escore do classificador",
+                    f"{item['escore_incidencia']:.2f}%"
+                )
+
+            st.markdown("### Achados identificados")
+
+            st.dataframe(
+                item["tabela"],
+                use_container_width=True,
+                hide_index=True
+            )
+
+            st.markdown("### Relatório experimental")
+
+            st.text(item["relatorio"])
+
+            st.download_button(
+                label="📄 BAIXAR ESTE RELATÓRIO EM PDF",
+                data=item["pdf"],
+                file_name=(
+                    f"relatorio_radvision_historico_{indice + 1}.pdf"
+                ),
+                mime="application/pdf",
+                use_container_width=True,
+                key=f"historico_pdf_{indice}"
+            )
+
+else:
+
+    st.info(
+        "Nenhuma análise foi armazenada nesta sessão. "
+        "Envie uma radiografia e clique em ANALISAR RADIOGRAFIA."
+    )
 
 
 # ==========================================
