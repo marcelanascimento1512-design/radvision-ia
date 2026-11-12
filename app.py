@@ -10,6 +10,8 @@ import torchxrayvision as xrv
 import matplotlib.pyplot as plt
 
 from PIL import Image
+from transformers import AutoModel, PreTrainedModel
+
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
@@ -88,7 +90,6 @@ h2, h3 {
     color: #C4B5FD;
 }
 
-/* Botão principal */
 div.stButton > button {
     background: linear-gradient(90deg, #5545D9, #8049E8) !important;
     color: #FFFFFF !important;
@@ -99,7 +100,6 @@ div.stButton > button {
     width: 100%;
 }
 
-/* Botão de download */
 div[data-testid="stDownloadButton"] > button {
     background: linear-gradient(90deg, #5545D9, #8049E8) !important;
     color: #FFFFFF !important;
@@ -144,7 +144,6 @@ hr {
     border-color: #5545D9;
 }
 
-/* Painel do relatório experimental */
 .relatorio-radvision {
     background: #25294F;
     border: 1px solid #8272E8;
@@ -192,15 +191,79 @@ hr {
 
 
 # ==========================================
-# CARREGAMENTO DO MODELO
+# MODELO DE IDENTIFICAÇÃO DA INCIDÊNCIA
+# ==========================================
+
+@st.cache_resource
+def carregar_modelo_incidencia():
+
+    # Compatibilidade com algumas versões do Transformers
+    if not hasattr(PreTrainedModel, "all_tied_weights_keys"):
+        PreTrainedModel.all_tied_weights_keys = {}
+
+    modelo_view = AutoModel.from_pretrained(
+        "ianpan/chest-x-ray-basic",
+        trust_remote_code=True
+    )
+
+    modelo_view.eval()
+    modelo_view.to("cpu")
+
+    return modelo_view
+
+
+def identificar_incidencia(arquivo):
+
+    modelo_view = carregar_modelo_incidencia()
+
+    imagem_pil = Image.open(
+        BytesIO(arquivo.getvalue())
+    ).convert("L")
+
+    imagem_array = np.array(imagem_pil)
+
+    imagem_processada = modelo_view.preprocess(
+        imagem_array
+    )
+
+    entrada_view = torch.from_numpy(
+        np.asarray(imagem_processada)
+    ).unsqueeze(0).unsqueeze(0).float()
+
+    with torch.inference_mode():
+        saida_view = modelo_view(entrada_view)
+
+    pontuacoes_view = torch.softmax(
+        saida_view["view"],
+        dim=1
+    )[0]
+
+    classes_view = ["AP", "PA", "Perfil"]
+
+    indice = int(torch.argmax(pontuacoes_view).item())
+
+    incidencia = classes_view[indice]
+
+    escore = float(
+        pontuacoes_view[indice].item()
+    ) * 100
+
+    return incidencia, escore
+
+
+# ==========================================
+# CARREGAMENTO DO MODELO RADIOGRÁFICO
 # ==========================================
 
 @st.cache_resource
 def carregar_modelo():
+
     modelo = xrv.models.DenseNet(
         weights="densenet121-res224-all"
     )
+
     modelo.eval()
+
     return modelo
 
 
@@ -210,7 +273,9 @@ def carregar_modelo():
 
 def preparar_imagem(arquivo):
 
-    imagem_pil = Image.open(arquivo).convert("L")
+    imagem_pil = Image.open(
+        BytesIO(arquivo.getvalue())
+    ).convert("L")
 
     arquivo_temporario = tempfile.NamedTemporaryFile(
         delete=False,
@@ -223,6 +288,7 @@ def preparar_imagem(arquivo):
     try:
         imagem_pil.save(caminho)
         imagem = xrv.utils.load_image(caminho)
+
     finally:
         if os.path.exists(caminho):
             os.remove(caminho)
@@ -241,7 +307,9 @@ def preparar_imagem(arquivo):
 
     imagem = xrv.datasets.XRayResizer(224)(imagem)
 
-    tensor = torch.from_numpy(imagem).unsqueeze(0).float()
+    tensor = torch.from_numpy(
+        imagem
+    ).unsqueeze(0).float()
 
     return imagem, tensor
 
@@ -250,7 +318,7 @@ def preparar_imagem(arquivo):
 # GERAÇÃO DO PDF
 # ==========================================
 
-def gerar_pdf(incidencia, principais):
+def gerar_pdf(incidencia, escore, principais):
 
     pdf_buffer = BytesIO()
     estilos = getSampleStyleSheet()
@@ -302,7 +370,11 @@ def gerar_pdf(incidencia, principais):
         Spacer(1, 25),
         Paragraph("RELATÓRIO EXPERIMENTAL", subtitulo),
         Paragraph(
-            f"<b>Incidência informada:</b> {incidencia}",
+            f"<b>Incidência identificada automaticamente:</b> {incidencia}",
+            texto
+        ),
+        Paragraph(
+            f"<b>Escore de classificação:</b> {escore:.2f}%",
             texto
         ),
         Spacer(1, 15),
@@ -312,7 +384,9 @@ def gerar_pdf(incidencia, principais):
         )
     ]
 
-    dados_pdf = [["Achado identificado", "Escore do modelo"]]
+    dados_pdf = [
+        ["Achado identificado", "Escore do modelo"]
+    ]
 
     for nome, valor in principais:
         dados_pdf.append([
@@ -347,28 +421,35 @@ def gerar_pdf(incidencia, principais):
         Paragraph(
             "Os valores apresentados são escores experimentais "
             "produzidos pelo modelo computacional e não representam "
-            "probabilidades diagnósticas. O mapa de sensibilidade "
-            "não confirma a localização de lesões. Este sistema "
-            "possui finalidade acadêmica e experimental, não devendo "
-            "ser utilizado para diagnóstico ou decisões clínicas. "
-            "Os resultados não substituem a avaliação de um "
-            "profissional habilitado.",
+            "probabilidades diagnósticas. O escore da incidência "
+            "também não garante que a classificação esteja correta. "
+            "O mapa de sensibilidade não confirma a localização de "
+            "lesões. Este sistema possui finalidade acadêmica e "
+            "experimental, não devendo ser utilizado para diagnóstico "
+            "ou decisões clínicas. Os resultados não substituem a "
+            "avaliação de um profissional habilitado.",
             texto
         )
     ])
 
     def rodape(canvas, documento):
+
         canvas.saveState()
         largura, altura = A4
 
-        canvas.setStrokeColor(colors.HexColor("#5545C7"))
+        canvas.setStrokeColor(
+            colors.HexColor("#5545C7")
+        )
+
         canvas.line(
             2 * cm, 1.7 * cm,
             largura - 2 * cm, 1.7 * cm
         )
 
         canvas.setFont("Helvetica", 8)
-        canvas.setFillColor(colors.HexColor("#666666"))
+        canvas.setFillColor(
+            colors.HexColor("#666666")
+        )
 
         canvas.drawString(
             2 * cm, 1.2 * cm,
@@ -400,6 +481,7 @@ def gerar_pdf(incidencia, principais):
     )
 
     pdf_buffer.seek(0)
+
     return pdf_buffer.getvalue()
 
 
@@ -407,9 +489,18 @@ def gerar_pdf(incidencia, principais):
 # ANÁLISE DA RADIOGRAFIA
 # ==========================================
 
-def analisar_radiografia(arquivo, incidencia):
+def analisar_radiografia(arquivo):
+
+    # PRIMEIRO: IDENTIFICAÇÃO AUTOMÁTICA DA INCIDÊNCIA
+
+    incidencia, escore_incidencia = identificar_incidencia(
+        arquivo
+    )
+
+    # SEGUNDO: ANÁLISE DOS ACHADOS RADIOGRÁFICOS
 
     modelo = carregar_modelo()
+
     imagem, entrada = preparar_imagem(arquivo)
 
     entrada = entrada.to("cpu")
@@ -450,9 +541,15 @@ def analisar_radiografia(arquivo, incidencia):
     ]
 
     ax.barh(nomes[::-1], valores[::-1])
-    ax.set_title("RADVISION IA | Principais resultados", fontsize=15)
+
+    ax.set_title(
+        "RADVISION IA | Principais resultados",
+        fontsize=15
+    )
+
     ax.set_xlabel("Escore do modelo")
     ax.grid(axis="x", alpha=0.2)
+
     fig.tight_layout()
 
     # MAPA DE SENSIBILIDADE
@@ -461,34 +558,44 @@ def analisar_radiografia(arquivo, incidencia):
     entrada_mapa.requires_grad_(True)
 
     modelo.zero_grad()
+
     saida = modelo(entrada_mapa)
 
     indice_maior = int(np.argmax(pontuacoes))
+
     saida[0, indice_maior].backward()
 
     gradientes = entrada_mapa.grad.abs()
-    mapa = gradientes[0].max(dim=0)[0].detach().numpy()
+
+    mapa = gradientes[0].max(
+        dim=0
+    )[0].detach().numpy()
 
     mapa = (mapa - mapa.min()) / (
         mapa.max() - mapa.min() + 1e-8
     )
 
     fig_mapa, ax_mapa = plt.subplots(figsize=(7, 7))
+
     ax_mapa.imshow(imagem[0], cmap="gray")
     ax_mapa.imshow(mapa, cmap="jet", alpha=0.4)
+
     ax_mapa.set_title("Mapa de sensibilidade")
     ax_mapa.axis("off")
+
     fig_mapa.tight_layout()
 
     # TEXTO DO RELATÓRIO
 
     texto_relatorio = (
         "Análise computacional concluída.\n\n"
-        f"Incidência informada: {incidencia}\n\n"
+        f"Incidência identificada automaticamente: {incidencia}\n"
+        f"Escore de classificação: {escore_incidencia:.2f}%\n\n"
         "Principais achados identificados:\n"
     )
 
     for nome, valor in principais:
+
         texto_relatorio += (
             f"- {traduzir_achado(nome)}: "
             f"{float(valor):.4f}\n"
@@ -496,15 +603,22 @@ def analisar_radiografia(arquivo, incidencia):
 
     texto_relatorio += (
         "\nOs escores são experimentais e não representam "
-        "probabilidades diagnósticas. O mapa de sensibilidade "
-        "não confirma a localização de lesões. "
-        "Esta ferramenta não substitui a avaliação "
-        "de um profissional habilitado."
+        "probabilidades diagnósticas. O escore de classificação "
+        "da incidência não garante que a identificação esteja "
+        "correta. O mapa de sensibilidade não confirma a "
+        "localização de lesões. Esta ferramenta não substitui "
+        "a avaliação de um profissional habilitado."
     )
 
-    pdf = gerar_pdf(incidencia, principais)
+    pdf = gerar_pdf(
+        incidencia,
+        escore_incidencia,
+        principais
+    )
 
     return (
+        incidencia,
+        escore_incidencia,
         tabela_resultados,
         fig,
         fig_mapa,
@@ -520,12 +634,14 @@ def analisar_radiografia(arquivo, incidencia):
 coluna_logo, coluna_titulo = st.columns([1, 3])
 
 with coluna_logo:
+
     if os.path.exists("IMG_5787.jpeg"):
         st.image("IMG_5787.jpeg", width=190)
     else:
         st.markdown("## 🩻")
 
 with coluna_titulo:
+
     st.markdown("""
     <div style="padding-top:20px;">
         <h1>RADVISION <span style="color:#A78BFA;">IA</span></h1>
@@ -555,12 +671,8 @@ with coluna_imagem:
         type=["jpg", "jpeg", "png"]
     )
 
-    incidencia = st.selectbox(
-        "Incidência radiográfica",
-        ["Não informada", "AP", "PA", "Perfil"]
-    )
-
     if arquivo is not None:
+
         st.image(
             arquivo,
             caption="Radiografia enviada",
@@ -580,21 +692,54 @@ with coluna_resultado:
     if analisar:
 
         if arquivo is None:
-            st.warning("Envie uma radiografia primeiro.")
+
+            st.warning(
+                "Envie uma radiografia primeiro."
+            )
 
         else:
+
             try:
+
                 with st.spinner(
-                    "Realizando análise computacional..."
+                    "Identificando a incidência e realizando "
+                    "a análise computacional..."
                 ):
-                    tabela, grafico, mapa, relatorio, pdf = (
-                        analisar_radiografia(
-                            arquivo,
-                            incidencia
-                        )
+
+                    (
+                        incidencia,
+                        escore_incidencia,
+                        tabela,
+                        grafico,
+                        mapa,
+                        relatorio,
+                        pdf
+                    ) = analisar_radiografia(arquivo)
+
+                st.success(
+                    "Análise computacional concluída!"
+                )
+
+                st.markdown("### Incidência identificada")
+
+                coluna_inc, coluna_escore = st.columns(2)
+
+                with coluna_inc:
+                    st.metric(
+                        "Incidência radiográfica",
+                        incidencia
                     )
 
-                st.success("Análise computacional concluída!")
+                with coluna_escore:
+                    st.metric(
+                        "Escore do classificador",
+                        f"{escore_incidencia:.2f}%"
+                    )
+
+                st.caption(
+                    "O escore representa a pontuação do classificador, "
+                    "não uma garantia de acerto."
+                )
 
                 st.markdown("### Achados identificados")
 
@@ -619,8 +764,6 @@ with coluna_resultado:
                 )
 
                 st.markdown("### Relatório experimental")
-
-                # PAINEL NOVO COM TEXTO MAIS NÍTIDO
 
                 st.markdown(
                     f"""
@@ -648,6 +791,7 @@ with coluna_resultado:
                 )
 
             except Exception as erro:
+
                 st.error(
                     f"Não foi possível concluir a análise: {erro}"
                 )
