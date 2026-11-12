@@ -10,3 +10,4 @@ Pillow
 scikit-image
 pandas
 transformers
+albumentations
