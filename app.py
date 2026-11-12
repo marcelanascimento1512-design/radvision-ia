@@ -134,10 +134,52 @@ div.stButton > button:hover {
     padding: 12px;
 }
 
+/* INDICADORES DE INCIDÊNCIA E ESCORE */
+
 [data-testid="stMetric"] {
-    background: #202044;
-    padding: 15px;
-    border-radius: 12px;
+    background: #25294F !important;
+    border: 1px solid #8272E8 !important;
+    border-radius: 14px !important;
+    padding: 22px 18px !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+}
+
+[data-testid="stMetricLabel"] {
+    color: #E0D9FF !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stMetricLabel"] p,
+[data-testid="stMetricLabel"] div,
+[data-testid="stMetricLabel"] span {
+    color: #E0D9FF !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stMetricValue"] {
+    color: #FFFFFF !important;
+    font-size: 42px !important;
+    font-weight: 800 !important;
+    line-height: 1.3 !important;
+}
+
+[data-testid="stMetricValue"] div,
+[data-testid="stMetricValue"] p,
+[data-testid="stMetricValue"] span {
+    color: #FFFFFF !important;
+    font-size: 42px !important;
+    font-weight: 800 !important;
+}
+
+[data-testid="stMetricDelta"] {
+    color: #FFFFFF !important;
+}
+
+[data-testid="stMetric"] svg {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
 }
 
 hr {
@@ -197,7 +239,6 @@ hr {
 @st.cache_resource
 def carregar_modelo_incidencia():
 
-    # Compatibilidade com algumas versões do Transformers
     if not hasattr(PreTrainedModel, "all_tied_weights_keys"):
         PreTrainedModel.all_tied_weights_keys = {}
 
@@ -491,13 +532,9 @@ def gerar_pdf(incidencia, escore, principais):
 
 def analisar_radiografia(arquivo):
 
-    # PRIMEIRO: IDENTIFICAÇÃO AUTOMÁTICA DA INCIDÊNCIA
-
     incidencia, escore_incidencia = identificar_incidencia(
         arquivo
     )
-
-    # SEGUNDO: ANÁLISE DOS ACHADOS RADIOGRÁFICOS
 
     modelo = carregar_modelo()
 
