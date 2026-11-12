@@ -913,7 +913,8 @@ with coluna_resultado:
                                 + '</div>'
                             )
 
-                st.markdown(
+                # CORREÇÃO: st.html interpreta o conteúdo HTML
+                st.html(
                     f"""
                     <div class="relatorio-radvision">
                         <div class="marca">RADVISION IA</div>
@@ -931,8 +932,7 @@ with coluna_resultado:
                             substituem a avaliação profissional.
                         </div>
                     </div>
-                    """,
-                    unsafe_allow_html=True
+                    """
                 )
 
                 st.download_button(
