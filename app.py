@@ -1,3 +1,4 @@
+
 import os
 import gc
 from datetime import datetime
@@ -141,7 +142,7 @@ h2, h3 {
     filter: contrast(1.08) brightness(1.06);
 }
 
-/* TÍTULOS DE SEÇÃO */
+/* TÍTULOS */
 
 .radvision-section {
     color: #D5C9FF;
@@ -152,7 +153,15 @@ h2, h3 {
     border-bottom: 1px solid rgba(167,139,250,0.30);
 }
 
-/* ÁREA DE ENVIO DE IMAGEM */
+.section-heading {
+    color: #D5C9FF;
+    font-size: 19px;
+    font-weight: 800;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+/* ENVIO DE IMAGEM */
 
 [data-testid="stFileUploader"] {
     background: linear-gradient(
@@ -243,7 +252,7 @@ div[data-testid="stDownloadButton"] > button svg {
     fill: #FFFFFF !important;
 }
 
-/* INDICADORES */
+/* INDICADORES NATIVOS */
 
 [data-testid="stMetric"] {
     background: #25294F !important;
@@ -267,12 +276,63 @@ div[data-testid="stDownloadButton"] > button svg {
 [data-testid="stMetricValue"] p,
 [data-testid="stMetricValue"] span {
     color: #FFFFFF !important;
-    font-size: 42px !important;
+    font-size: 36px !important;
     font-weight: 800 !important;
     line-height: 1.3 !important;
 }
 
-/* CAIXAS E COMPONENTES */
+/* NOVOS CARTÕES DE RESULTADO */
+
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 16px 0 12px 0;
+}
+
+.result-card {
+    background: linear-gradient(145deg, #25294F, #30275F);
+    border: 1px solid rgba(167,139,250,0.65);
+    border-top: 4px solid #9B83F5;
+    border-radius: 15px;
+    padding: 19px 17px;
+    min-height: 130px;
+    box-shadow: 0 7px 20px rgba(0,0,0,0.22);
+    overflow-wrap: anywhere;
+}
+
+.result-card:nth-child(2) {
+    border-top-color: #7C8CFB;
+}
+
+.result-card:nth-child(3) {
+    border-top-color: #C084FC;
+}
+
+.result-label {
+    color: #D6CCFF;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.result-value {
+    color: #FFFFFF;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.result-detail {
+    color: #C9C4E8;
+    font-size: 11px;
+    margin-top: 9px;
+    line-height: 1.5;
+}
+
+/* CAIXAS */
 
 [data-testid="stVerticalBlockBorderWrapper"] {
     border: 1px solid rgba(167,139,250,0.28) !important;
@@ -302,7 +362,7 @@ div[data-testid="stDownloadButton"] > button svg {
 /* RELATÓRIO */
 
 .relatorio-radvision {
-    background: #25294F;
+    background: linear-gradient(145deg, #25294F, #29234F);
     border: 1px solid #8272E8;
     border-left: 5px solid #A78BFA;
     border-radius: 14px;
@@ -311,13 +371,14 @@ div[data-testid="stDownloadButton"] > button svg {
     margin-bottom: 20px;
     color: #FFFFFF !important;
     font-family: 'Inter', sans-serif;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.20);
+    box-shadow: 0 7px 22px rgba(0,0,0,0.24);
 }
 
 .relatorio-radvision .marca {
     color: #C4B5FD;
-    font-size: 23px;
+    font-size: 25px;
     font-weight: 800;
+    letter-spacing: 0.5px;
 }
 
 .relatorio-radvision .slogan {
@@ -328,28 +389,30 @@ div[data-testid="stDownloadButton"] > button svg {
 
 .relatorio-radvision .secao {
     color: #C4B5FD;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 800;
     margin-top: 20px;
-    margin-bottom: 8px;
+    margin-bottom: 9px;
     border-bottom: 1px solid #55558A;
-    padding-bottom: 6px;
+    padding-bottom: 7px;
 }
 
 .relatorio-radvision .texto {
     color: #FFFFFF;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.8;
+    margin-bottom: 5px;
 }
 
 .relatorio-radvision .aviso {
     background: #34345D;
-    border-radius: 8px;
-    padding: 14px;
+    border: 1px solid rgba(192,132,252,0.35);
+    border-radius: 9px;
+    padding: 15px;
     color: #F3EFFF;
     font-size: 13px;
     line-height: 1.7;
-    margin-top: 18px;
+    margin-top: 20px;
 }
 
 /* AVISOS */
@@ -363,11 +426,55 @@ div[data-testid="stDownloadButton"] > button svg {
     line-height: 1.65;
 }
 
+/* GRÁFICOS */
+
+.chart-shell {
+    background: rgba(25,30,66,0.55);
+    border: 1px solid rgba(167,139,250,0.35);
+    border-radius: 16px;
+    padding: 12px;
+    margin: 8px 0 18px 0;
+}
+
+@media (max-width: 700px) {
+    .result-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .radvision-hero h1 {
+        font-size: 27px;
+    }
+}
+
 hr {
     border-color: #5545D9;
 }
 </style>
 """, unsafe_allow_html=True)
+
+
+# ==========================================
+# FUNÇÕES AUXILIARES DOS GRÁFICOS
+# ==========================================
+
+def configurar_grafico(fig, ax):
+    fig.patch.set_facecolor("#171B3A")
+    ax.set_facecolor("#20264B")
+
+    ax.tick_params(colors="#E9E5FF", labelsize=10)
+    ax.xaxis.label.set_color("#E9E5FF")
+    ax.yaxis.label.set_color("#E9E5FF")
+    ax.title.set_color("#FFFFFF")
+
+    for borda in ax.spines.values():
+        borda.set_color("#55558A")
+
+    ax.grid(
+        axis="x",
+        color="#7770B8",
+        alpha=0.22,
+        linestyle="--"
+    )
 
 
 # ==========================================
@@ -805,7 +912,9 @@ def analisar_radiografia(arquivo):
         for nome, valor in analise
     ]
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # GRÁFICO PRINCIPAL
+
+    fig, ax = plt.subplots(figsize=(12, 7))
 
     nomes = [
         traduzir_achado(item[0])
@@ -817,17 +926,50 @@ def analisar_radiografia(arquivo):
         for item in principais
     ]
 
-    ax.barh(nomes[::-1], valores[::-1])
+    cores_barras = [
+        "#A78BFA",
+        "#9381F5",
+        "#8177E8",
+        "#747FE5",
+        "#6D8DE8",
+        "#718DE0",
+        "#7D83D9",
+        "#8D7BD3",
+        "#9A76D1",
+        "#A77BCB"
+    ]
+
+    ax.barh(
+        nomes[::-1],
+        valores[::-1],
+        color=cores_barras[:len(valores)][::-1],
+        height=0.66,
+        edgecolor="#D8CCFF",
+        linewidth=0.5
+    )
 
     ax.set_title(
         "RADVISION IA | Principais resultados",
-        fontsize=15
+        fontsize=17,
+        fontweight="bold",
+        pad=18
     )
 
-    ax.set_xlabel("Escore do modelo")
-    ax.grid(axis="x", alpha=0.2)
+    ax.set_xlabel(
+        "Escore do modelo",
+        fontsize=11,
+        labelpad=10
+    )
 
-    fig.tight_layout()
+    ax.set_ylabel("")
+
+    configurar_grafico(fig, ax)
+
+    ax.grid(axis="y", visible=False)
+
+    fig.tight_layout(pad=2)
+
+    # MAPA DE SENSIBILIDADE
 
     entrada_mapa = entrada.detach().clone()
     entrada_mapa.requires_grad_(True)
@@ -850,15 +992,33 @@ def analisar_radiografia(arquivo):
         mapa.max() - mapa.min() + 1e-8
     )
 
-    fig_mapa, ax_mapa = plt.subplots(figsize=(7, 7))
+    fig_mapa, ax_mapa = plt.subplots(figsize=(8, 8))
 
-    ax_mapa.imshow(imagem[0], cmap="gray")
-    ax_mapa.imshow(mapa, cmap="jet", alpha=0.4)
+    fig_mapa.patch.set_facecolor("#171B3A")
+    ax_mapa.set_facecolor("#171B3A")
 
-    ax_mapa.set_title("Mapa de sensibilidade")
+    ax_mapa.imshow(
+        imagem[0],
+        cmap="gray"
+    )
+
+    ax_mapa.imshow(
+        mapa,
+        cmap="magma",
+        alpha=0.48
+    )
+
+    ax_mapa.set_title(
+        "Mapa experimental de sensibilidade",
+        color="#FFFFFF",
+        fontsize=15,
+        fontweight="bold",
+        pad=15
+    )
+
     ax_mapa.axis("off")
 
-    fig_mapa.tight_layout()
+    fig_mapa.tight_layout(pad=1.5)
 
     relatorio = construir_relatorio(
         incidencia,
@@ -872,6 +1032,15 @@ def analisar_radiografia(arquivo):
         principais,
         relatorio
     )
+
+    del entrada_mapa
+    del gradientes
+    del resultado
+    del saida
+    del entrada
+    del modelo
+
+    gc.collect()
 
     return (
         incidencia,
@@ -1015,25 +1184,64 @@ with coluna_resultado:
                     "Análise computacional concluída!"
                 )
 
-                st.markdown("### Identificação da incidência")
+                # CARTÕES DE DESTAQUE
 
-                coluna_inc, coluna_escore = st.columns(2)
+                maior_achado = tabela[0]["Achado identificado"]
+                maior_escore = tabela[0]["Escore do modelo"]
 
-                with coluna_inc:
-                    st.metric(
-                        "Incidência radiográfica",
-                        incidencia
-                    )
+                st.markdown("""
+                <div class="section-heading">
+                    PAINEL DE RESULTADOS
+                </div>
+                """, unsafe_allow_html=True)
 
-                with coluna_escore:
-                    st.metric(
-                        "Escore do classificador",
-                        f"{escore_incidencia:.2f}%"
-                    )
+                st.markdown(
+                    f"""
+                    <div class="result-grid">
+                        <div class="result-card">
+                            <div class="result-label">
+                                Incidência sugerida
+                            </div>
+                            <div class="result-value">
+                                {escape(incidencia)}
+                            </div>
+                            <div class="result-detail">
+                                Classificação automática da imagem
+                            </div>
+                        </div>
+
+                        <div class="result-card">
+                            <div class="result-label">
+                                Escore do classificador
+                            </div>
+                            <div class="result-value">
+                                {escore_incidencia:.2f}%
+                            </div>
+                            <div class="result-detail">
+                                Pontuação da classificação de incidência
+                            </div>
+                        </div>
+
+                        <div class="result-card">
+                            <div class="result-label">
+                                Maior escore do modelo
+                            </div>
+                            <div class="result-value" style="font-size:21px;">
+                                {escape(maior_achado)}
+                            </div>
+                            <div class="result-detail">
+                                Escore numérico: {maior_escore:.4f}
+                            </div>
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
                 st.caption(
-                    "Pontuação do classificador experimental. "
-                    "Não representa garantia de acerto."
+                    "Os escores são saídas dos modelos computacionais. "
+                    "Não representam probabilidades diagnósticas nem "
+                    "garantia de acerto."
                 )
 
                 st.markdown("### Achados identificados")
@@ -1046,19 +1254,52 @@ with coluna_resultado:
 
                 st.markdown("### Gráfico de resultados")
 
+                st.markdown(
+                    '<div class="chart-shell">',
+                    unsafe_allow_html=True
+                )
+
                 st.pyplot(
                     grafico,
                     use_container_width=True
                 )
 
+                st.markdown("</div>", unsafe_allow_html=True)
+
                 plt.close(grafico)
 
                 st.markdown("### Mapa de sensibilidade")
 
-                st.pyplot(
-                    mapa,
-                    use_container_width=True
+                st.markdown(
+                    """
+                    <div class="radvision-note">
+                        Visualização experimental da resposta do modelo
+                        aos diferentes pontos da imagem. As regiões destacadas
+                        não representam localização confirmada de lesões.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
                 )
+
+                st.write("")
+
+                mapa_col1, mapa_col2, mapa_col3 = st.columns(
+                    [0.25, 1.5, 0.25]
+                )
+
+                with mapa_col2:
+
+                    st.markdown(
+                        '<div class="chart-shell">',
+                        unsafe_allow_html=True
+                    )
+
+                    st.pyplot(
+                        mapa,
+                        use_container_width=True
+                    )
+
+                    st.markdown("</div>", unsafe_allow_html=True)
 
                 plt.close(mapa)
 
@@ -1294,7 +1535,7 @@ if len(st.session_state.historico_analises) >= 2:
         for linha in maiores_diferencas
     ][::-1]
 
-    fig_comp, ax_comp = plt.subplots(figsize=(10, 6))
+    fig_comp, ax_comp = plt.subplots(figsize=(12, 7))
 
     posicoes = np.arange(len(nomes_grafico))
     altura_barra = 0.36
@@ -1303,14 +1544,20 @@ if len(st.session_state.historico_analises) >= 2:
         posicoes - altura_barra / 2,
         valores_a,
         altura_barra,
-        label="Análise A"
+        label="Análise A",
+        color="#8B78F0",
+        edgecolor="#D8CCFF",
+        linewidth=0.5
     )
 
     ax_comp.barh(
         posicoes + altura_barra / 2,
         valores_b,
         altura_barra,
-        label="Análise B"
+        label="Análise B",
+        color="#5C9BEB",
+        edgecolor="#C5E0FF",
+        linewidth=0.5
     )
 
     ax_comp.set_yticks(posicoes)
@@ -1319,18 +1566,35 @@ if len(st.session_state.historico_analises) >= 2:
     ax_comp.set_xlabel("Escore do modelo")
 
     ax_comp.set_title(
-        "Comparação dos escores — 10 maiores diferenças"
+        "Comparação dos escores — 10 maiores diferenças",
+        fontsize=15,
+        fontweight="bold",
+        pad=16
     )
 
-    ax_comp.legend()
-    ax_comp.grid(axis="x", alpha=0.2)
+    configurar_grafico(fig_comp, ax_comp)
+
+    ax_comp.grid(axis="y", visible=False)
+
+    legenda = ax_comp.legend(
+        facecolor="#25294F",
+        edgecolor="#8272E8",
+        labelcolor="#FFFFFF"
+    )
 
     fig_comp.tight_layout()
+
+    st.markdown(
+        '<div class="chart-shell">',
+        unsafe_allow_html=True
+    )
 
     st.pyplot(
         fig_comp,
         use_container_width=True
     )
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
     plt.close(fig_comp)
 
@@ -1439,7 +1703,7 @@ else:
 st.divider()
 
 st.markdown("""
-<div style="text-align:center; padding:15px;">
+<div style="text-align:center; padding:18px;">
     <h3>RADVISION IA | Projeto acadêmico</h3>
     <p>
         Sistema experimental de análise de radiografias
@@ -1448,6 +1712,9 @@ st.markdown("""
     <p>
         Os resultados não substituem a avaliação
         de um profissional habilitado.
+    </p>
+    <p style="color:#A78BFA; font-size:12px;">
+        Tecnologia e precisão em cada imagem.
     </p>
 </div>
 """, unsafe_allow_html=True)
