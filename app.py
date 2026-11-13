@@ -281,57 +281,6 @@ div[data-testid="stDownloadButton"] > button svg {
     line-height: 1.3 !important;
 }
 
-/* NOVOS CARTÕES DE RESULTADO */
-
-.result-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
-    margin: 16px 0 12px 0;
-}
-
-.result-card {
-    background: linear-gradient(145deg, #25294F, #30275F);
-    border: 1px solid rgba(167,139,250,0.65);
-    border-top: 4px solid #9B83F5;
-    border-radius: 15px;
-    padding: 19px 17px;
-    min-height: 130px;
-    box-shadow: 0 7px 20px rgba(0,0,0,0.22);
-    overflow-wrap: anywhere;
-}
-
-.result-card:nth-child(2) {
-    border-top-color: #7C8CFB;
-}
-
-.result-card:nth-child(3) {
-    border-top-color: #C084FC;
-}
-
-.result-label {
-    color: #D6CCFF;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-}
-
-.result-value {
-    color: #FFFFFF;
-    font-size: 28px;
-    font-weight: 800;
-    line-height: 1.2;
-}
-
-.result-detail {
-    color: #C9C4E8;
-    font-size: 11px;
-    margin-top: 9px;
-    line-height: 1.5;
-}
-
 /* CAIXAS */
 
 [data-testid="stVerticalBlockBorderWrapper"] {
@@ -434,16 +383,6 @@ div[data-testid="stDownloadButton"] > button svg {
     border-radius: 16px;
     padding: 12px;
     margin: 8px 0 18px 0;
-}
-
-@media (max-width: 700px) {
-    .result-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .radvision-hero h1 {
-        font-size: 27px;
-    }
 }
 
 hr {
@@ -1184,59 +1123,32 @@ with coluna_resultado:
                     "Análise computacional concluída!"
                 )
 
-                # CARTÕES DE DESTAQUE
+                # PAINEL DE RESULTADOS CORRIGIDO
 
                 maior_achado = tabela[0]["Achado identificado"]
                 maior_escore = tabela[0]["Escore do modelo"]
 
-                st.markdown("""
-                <div class="section-heading">
-                    PAINEL DE RESULTADOS
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown("### PAINEL DE RESULTADOS")
 
-                st.markdown(
-                    f"""
-                    <div class="result-grid">
-                        <div class="result-card">
-                            <div class="result-label">
-                                Incidência sugerida
-                            </div>
-                            <div class="result-value">
-                                {escape(incidencia)}
-                            </div>
-                            <div class="result-detail">
-                                Classificação automática da imagem
-                            </div>
-                        </div>
+                cartao1, cartao2, cartao3 = st.columns(3)
 
-                        <div class="result-card">
-                            <div class="result-label">
-                                Escore do classificador
-                            </div>
-                            <div class="result-value">
-                                {escore_incidencia:.2f}%
-                            </div>
-                            <div class="result-detail">
-                                Pontuação da classificação de incidência
-                            </div>
-                        </div>
+                with cartao1:
+                    with st.container(border=True):
+                        st.caption("INCIDÊNCIA SUGERIDA")
+                        st.markdown(f"## {incidencia}")
+                        st.caption("Classificação automática da imagem")
 
-                        <div class="result-card">
-                            <div class="result-label">
-                                Maior escore do modelo
-                            </div>
-                            <div class="result-value" style="font-size:21px;">
-                                {escape(maior_achado)}
-                            </div>
-                            <div class="result-detail">
-                                Escore numérico: {maior_escore:.4f}
-                            </div>
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+                with cartao2:
+                    with st.container(border=True):
+                        st.caption("ESCORE DO CLASSIFICADOR")
+                        st.markdown(f"## {escore_incidencia:.2f}%")
+                        st.caption("Pontuação da classificação")
+
+                with cartao3:
+                    with st.container(border=True):
+                        st.caption("MAIOR ESCORE DO MODELO")
+                        st.markdown(f"**{maior_achado}**")
+                        st.caption(f"Escore numérico: {maior_escore:.4f}")
 
                 st.caption(
                     "Os escores são saídas dos modelos computacionais. "
