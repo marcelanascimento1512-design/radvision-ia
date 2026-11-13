@@ -1,4 +1,3 @@
-
 import os
 import gc
 from datetime import datetime
@@ -228,6 +227,96 @@ hr {
     line-height: 1.7;
     margin-top: 18px;
 }
+
+/* IDENTIDADE VISUAL APRIMORADA */
+
+.stApp {
+    background:
+        radial-gradient(circle at 12% 8%, rgba(85,69,217,0.18), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(128,73,232,0.13), transparent 25%),
+        linear-gradient(135deg, #070B1C 0%, #10152F 48%, #171536 100%);
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    max-width: 1450px;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border: 1px solid rgba(167,139,250,0.28) !important;
+    border-radius: 16px !important;
+    background: rgba(25,30,66,0.48) !important;
+}
+
+[data-testid="stFileUploader"] section {
+    background: rgba(37,41,79,0.55);
+    border: 1px dashed #8B78F0;
+    border-radius: 14px;
+}
+
+[data-testid="stSelectbox"] > div > div {
+    background: #20264B !important;
+    border: 1px solid #7565D9 !important;
+    border-radius: 10px !important;
+    color: white !important;
+}
+
+[data-testid="stDataFrame"] {
+    border: 1px solid rgba(130,114,232,0.45);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+[data-testid="stExpander"] {
+    border: 1px solid rgba(130,114,232,0.42) !important;
+    border-radius: 12px !important;
+    background: rgba(32,38,75,0.45);
+}
+
+.radvision-hero {
+    background: linear-gradient(110deg, rgba(37,41,79,0.96), rgba(54,39,105,0.88));
+    border: 1px solid rgba(167,139,250,0.55);
+    border-left: 5px solid #A78BFA;
+    border-radius: 18px;
+    padding: 22px 26px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.22);
+}
+
+.radvision-kicker {
+    color:#B9A9FF;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:2px;
+}
+
+.radvision-hero h1 {
+    margin:4px 0 2px 0;
+    font-size:34px;
+}
+
+.radvision-hero p {
+    color:#DCD8F8;
+    margin:0;
+}
+
+.radvision-section {
+    color:#D5C9FF;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:1.5px;
+    padding: 9px 0;
+    border-bottom:1px solid rgba(167,139,250,0.25);
+}
+
+.radvision-note {
+    background:rgba(48,44,91,0.72);
+    border:1px solid rgba(167,139,250,0.35);
+    border-radius:12px;
+    padding:14px 16px;
+    color:#E9E5FF;
+    line-height:1.65;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -362,773 +451,3 @@ def preparar_imagem(arquivo):
     ]
 
     imagem = xrv.datasets.XRayResizer(224)(imagem)
-
-    tensor = torch.from_numpy(
-        imagem
-    ).unsqueeze(0).float()
-
-    return imagem, tensor
-
-
-# ==========================================
-# CONSTRUÇÃO DO RELATÓRIO ESTRUTURADO
-# ==========================================
-
-def construir_relatorio(
-    incidencia,
-    escore_incidencia,
-    principais
-):
-
-    linhas = []
-
-    linhas.append(
-        "RESUMO DA ANÁLISE COMPUTACIONAL"
-    )
-
-    linhas.append(
-        "O sistema realizou uma análise experimental "
-        "da imagem radiográfica enviada."
-    )
-
-    linhas.append("")
-
-    linhas.append("1. IDENTIFICAÇÃO DA INCIDÊNCIA")
-
-    linhas.append(
-        f"Incidência sugerida pelo classificador: {incidencia}"
-    )
-
-    linhas.append(
-        f"Escore do classificador: {escore_incidencia:.2f}%"
-    )
-
-    linhas.append(
-        "A classificação automática deve ser conferida "
-        "por profissional habilitado."
-    )
-
-    linhas.append("")
-
-    linhas.append("2. PRINCIPAIS ESCORES DO MODELO")
-
-    if principais:
-        for nome, valor in principais:
-            linhas.append(
-                f"- {traduzir_achado(nome)}: {float(valor):.4f}"
-            )
-    else:
-        linhas.append(
-            "Não foram disponibilizados resultados."
-        )
-
-    linhas.append("")
-
-    linhas.append("3. OBSERVAÇÕES TÉCNICAS")
-
-    linhas.append(
-        "Os resultados correspondem às saídas de um modelo "
-        "computacional aplicado à imagem."
-    )
-
-    linhas.append(
-        "Os escores não representam probabilidades diagnósticas "
-        "e não confirmam a presença ou ausência de doenças."
-    )
-
-    linhas.append(
-        "O mapa de sensibilidade representa uma visualização "
-        "experimental da resposta do modelo, não sendo uma "
-        "confirmação da localização de alterações."
-    )
-
-    linhas.append("")
-
-    linhas.append("4. CONCLUSÃO EXPERIMENTAL")
-
-    linhas.append(
-        "A análise computacional foi concluída e os resultados "
-        "foram organizados para fins acadêmicos e demonstrativos."
-    )
-
-    linhas.append(
-        "A interpretação da radiografia deve considerar a "
-        "qualidade da imagem, o contexto clínico e a avaliação "
-        "de um profissional habilitado."
-    )
-
-    return "\n".join(linhas)
-
-
-# ==========================================
-# GERAÇÃO DO PDF
-# ==========================================
-
-def gerar_pdf(incidencia, escore, principais, relatorio):
-
-    pdf_buffer = BytesIO()
-    estilos = getSampleStyleSheet()
-
-    titulo = ParagraphStyle(
-        "TituloRADVISION",
-        parent=estilos["Title"],
-        alignment=TA_CENTER,
-        textColor=colors.HexColor("#5545C7"),
-        fontName="Helvetica-Bold",
-        fontSize=23,
-        leading=28,
-        spaceAfter=8
-    )
-
-    slogan = ParagraphStyle(
-        "SloganRADVISION",
-        parent=estilos["Normal"],
-        alignment=TA_CENTER,
-        textColor=colors.HexColor("#555555"),
-        fontSize=10
-    )
-
-    subtitulo = ParagraphStyle(
-        "SubtituloRADVISION",
-        parent=estilos["Heading2"],
-        textColor=colors.HexColor("#5545C7"),
-        fontName="Helvetica-Bold",
-        fontSize=14,
-        leading=18,
-        spaceBefore=12,
-        spaceAfter=10
-    )
-
-    texto = ParagraphStyle(
-        "TextoRADVISION",
-        parent=estilos["BodyText"],
-        textColor=colors.HexColor("#222222"),
-        fontSize=10,
-        leading=15,
-        spaceAfter=6
-    )
-
-    elementos = [
-        Paragraph("RADVISION IA", titulo),
-        Paragraph(
-            "Tecnologia e precisão em cada imagem.",
-            slogan
-        ),
-        Spacer(1, 25),
-        Paragraph("RELATÓRIO EXPERIMENTAL ESTRUTURADO", subtitulo),
-        Paragraph(
-            f"<b>Incidência sugerida:</b> {escape(incidencia)}",
-            texto
-        ),
-        Paragraph(
-            f"<b>Escore do classificador:</b> {escore:.2f}%",
-            texto
-        ),
-        Spacer(1, 12),
-        Paragraph("PRINCIPAIS ESCORES DO MODELO", subtitulo)
-    ]
-
-    dados_pdf = [
-        ["Achado identificado", "Escore do modelo"]
-    ]
-
-    for nome, valor in principais:
-        dados_pdf.append([
-            escape(traduzir_achado(nome)),
-            f"{float(valor):.4f}"
-        ])
-
-    tabela_pdf = Table(
-        dados_pdf,
-        colWidths=[10 * cm, 6 * cm],
-        repeatRows=1
-    )
-
-    tabela_pdf.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#5545C7")),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
-        ("TEXTCOLOR", (0, 1), (-1, -1), colors.HexColor("#222222")),
-        ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#F3F1FA")),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
-        ("ALIGN", (1, 0), (1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("PADDING", (0, 0), (-1, -1), 9)
-    ]))
-
-    elementos.extend([
-        Spacer(1, 10),
-        tabela_pdf,
-        Spacer(1, 20),
-        Paragraph("RELATÓRIO DESCRITIVO", subtitulo)
-    ])
-
-    secoes = relatorio.split("\n\n")
-
-    for secao in secoes:
-
-        texto_secao = escape(secao).replace("\n", "<br/>")
-
-        if texto_secao.strip():
-            elementos.append(
-                Paragraph(texto_secao, texto)
-            )
-            elementos.append(Spacer(1, 5))
-
-    elementos.extend([
-        Spacer(1, 15),
-        Paragraph("AVISO IMPORTANTE", subtitulo),
-        Paragraph(
-            "Este sistema possui finalidade acadêmica e experimental. "
-            "Os escores não representam probabilidades diagnósticas. "
-            "A classificação da incidência não garante acerto. "
-            "O mapa de sensibilidade não confirma a localização de "
-            "lesões. O RADVISION IA não deve ser utilizado para "
-            "diagnóstico ou decisões clínicas e não substitui a "
-            "avaliação de um profissional habilitado.",
-            texto
-        )
-    ])
-
-    def rodape(canvas, documento):
-
-        canvas.saveState()
-        largura, altura = A4
-
-        canvas.setStrokeColor(
-            colors.HexColor("#5545C7")
-        )
-
-        canvas.line(
-            2 * cm, 1.7 * cm,
-            largura - 2 * cm, 1.7 * cm
-        )
-
-        canvas.setFont("Helvetica", 8)
-        canvas.setFillColor(
-            colors.HexColor("#666666")
-        )
-
-        canvas.drawString(
-            2 * cm, 1.2 * cm,
-            "RADVISION IA | Projeto acadêmico"
-        )
-
-        canvas.drawRightString(
-            largura - 2 * cm, 1.2 * cm,
-            f"Página {documento.page}"
-        )
-
-        canvas.restoreState()
-
-    documento = SimpleDocTemplate(
-        pdf_buffer,
-        pagesize=A4,
-        rightMargin=2 * cm,
-        leftMargin=2 * cm,
-        topMargin=2 * cm,
-        bottomMargin=2.3 * cm,
-        title="Relatório experimental RADVISION IA",
-        author="RADVISION IA"
-    )
-
-    documento.build(
-        elementos,
-        onFirstPage=rodape,
-        onLaterPages=rodape
-    )
-
-    pdf_buffer.seek(0)
-
-    return pdf_buffer.getvalue()
-
-
-# ==========================================
-# ANÁLISE DA RADIOGRAFIA
-# ==========================================
-
-def analisar_radiografia(arquivo):
-
-    incidencia, escore_incidencia = identificar_incidencia(
-        arquivo
-    )
-
-    # O primeiro modelo já foi liberado.
-    # Agora carregamos o modelo de análise radiográfica.
-
-    modelo = carregar_modelo()
-
-    imagem, entrada = preparar_imagem(arquivo)
-
-    entrada = entrada.to("cpu")
-
-    with torch.inference_mode():
-        resultado = modelo(entrada)
-
-    pontuacoes = resultado[0].cpu().numpy()
-
-    analise = sorted(
-        zip(modelo.pathologies, pontuacoes),
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    principais = analise[:10]
-
-    tabela_resultados = [
-        {
-            "Achado identificado": traduzir_achado(nome),
-            "Escore do modelo": round(float(valor), 4)
-        }
-        for nome, valor in analise
-    ]
-
-    # GRÁFICO
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    nomes = [
-        traduzir_achado(item[0])
-        for item in principais
-    ]
-
-    valores = [
-        float(item[1])
-        for item in principais
-    ]
-
-    ax.barh(nomes[::-1], valores[::-1])
-
-    ax.set_title(
-        "RADVISION IA | Principais resultados",
-        fontsize=15
-    )
-
-    ax.set_xlabel("Escore do modelo")
-    ax.grid(axis="x", alpha=0.2)
-
-    fig.tight_layout()
-
-    # MAPA DE SENSIBILIDADE
-
-    entrada_mapa = entrada.detach().clone()
-    entrada_mapa.requires_grad_(True)
-
-    modelo.zero_grad()
-
-    saida = modelo(entrada_mapa)
-
-    indice_maior = int(np.argmax(pontuacoes))
-
-    saida[0, indice_maior].backward()
-
-    gradientes = entrada_mapa.grad.abs()
-
-    mapa = gradientes[0].max(
-        dim=0
-    )[0].detach().numpy()
-
-    mapa = (mapa - mapa.min()) / (
-        mapa.max() - mapa.min() + 1e-8
-    )
-
-    fig_mapa, ax_mapa = plt.subplots(figsize=(7, 7))
-
-    ax_mapa.imshow(imagem[0], cmap="gray")
-    ax_mapa.imshow(mapa, cmap="jet", alpha=0.4)
-
-    ax_mapa.set_title("Mapa de sensibilidade")
-    ax_mapa.axis("off")
-
-    fig_mapa.tight_layout()
-
-    # RELATÓRIO ESTRUTURADO
-
-    relatorio = construir_relatorio(
-        incidencia,
-        escore_incidencia,
-        principais
-    )
-
-    pdf = gerar_pdf(
-        incidencia,
-        escore_incidencia,
-        principais,
-        relatorio
-    )
-
-    return (
-        incidencia,
-        escore_incidencia,
-        tabela_resultados,
-        fig,
-        fig_mapa,
-        relatorio,
-        pdf
-    )
-
-
-# ==========================================
-# CABEÇALHO
-# ==========================================
-
-coluna_logo, coluna_titulo = st.columns([1, 3])
-
-with coluna_logo:
-
-    if os.path.exists("IMG_5787.jpeg"):
-        st.image("IMG_5787.jpeg", width=190)
-    else:
-        st.markdown("## 🩻")
-
-with coluna_titulo:
-
-    st.markdown("""
-    <div style="padding-top:20px;">
-        <h1>RADVISION <span style="color:#A78BFA;">IA</span></h1>
-        <h3>Tecnologia e precisão em cada imagem.</h3>
-        <p>Análise experimental de radiografias de tórax</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-st.divider()
-
-
-# ==========================================
-# HISTÓRICO DE ANÁLISES NA SESSÃO
-# ==========================================
-
-if "historico_analises" not in st.session_state:
-    st.session_state.historico_analises = []
-
-if "resultado_atual" not in st.session_state:
-    st.session_state.resultado_atual = None
-
-
-# ==========================================
-# INTERFACE PRINCIPAL
-# ==========================================
-
-st.markdown("## ENVIO DA RADIOGRAFIA")
-
-coluna_imagem, coluna_resultado = st.columns(
-    [1, 1.4],
-    gap="large"
-)
-
-with coluna_imagem:
-
-    arquivo = st.file_uploader(
-        "Selecionar radiografia de tórax",
-        type=["jpg", "jpeg", "png"],
-        key="uploader_radiografia"
-    )
-
-    if arquivo is not None:
-
-        st.image(
-            arquivo,
-            caption="Radiografia enviada",
-            use_container_width=True
-        )
-
-    analisar = st.button(
-        "ANALISAR RADIOGRAFIA",
-        use_container_width=True
-    )
-
-
-with coluna_resultado:
-
-    st.markdown("## RESULTADOS DA ANÁLISE")
-
-    if analisar:
-
-        if arquivo is None:
-
-            st.warning(
-                "Envie uma radiografia primeiro."
-            )
-
-        else:
-
-            try:
-
-                with st.spinner(
-                    "Identificando a incidência e realizando "
-                    "a análise computacional..."
-                ):
-
-                    (
-                        incidencia,
-                        escore_incidencia,
-                        tabela,
-                        grafico,
-                        mapa,
-                        relatorio,
-                        pdf
-                    ) = analisar_radiografia(arquivo)
-
-                st.session_state.resultado_atual = {
-                    "incidencia": incidencia,
-                    "escore_incidencia": escore_incidencia,
-                    "tabela": tabela,
-                    "grafico": grafico,
-                    "mapa": mapa,
-                    "relatorio": relatorio,
-                    "pdf": pdf
-                }
-
-                registro = {
-                    "data_hora": datetime.now().strftime(
-                        "%d/%m/%Y às %H:%M"
-                    ),
-                    "arquivo": arquivo.name,
-                    "incidencia": incidencia,
-                    "escore_incidencia": escore_incidencia,
-                    "tabela": tabela,
-                    "relatorio": relatorio,
-                    "pdf": pdf
-                }
-
-                st.session_state.historico_analises.insert(
-                    0,
-                    registro
-                )
-
-            except Exception as erro:
-
-                st.error(
-                    f"Não foi possível concluir a análise: {erro}"
-                )
-
-    resultado_atual = st.session_state.resultado_atual
-
-    if resultado_atual is not None:
-
-        incidencia = resultado_atual["incidencia"]
-        escore_incidencia = resultado_atual["escore_incidencia"]
-        tabela = resultado_atual["tabela"]
-        grafico = resultado_atual["grafico"]
-        mapa = resultado_atual["mapa"]
-        relatorio = resultado_atual["relatorio"]
-        pdf = resultado_atual["pdf"]
-
-        st.success(
-            "Análise computacional concluída!"
-        )
-
-        st.markdown("### Identificação da incidência")
-
-        coluna_inc, coluna_escore = st.columns(2)
-
-        with coluna_inc:
-            st.metric(
-                "Incidência radiográfica",
-                incidencia
-            )
-
-        with coluna_escore:
-            st.metric(
-                "Escore do classificador",
-                f"{escore_incidencia:.2f}%"
-            )
-
-        st.caption(
-            "Pontuação do classificador experimental. "
-            "Não representa garantia de acerto."
-        )
-
-        st.markdown("### Achados identificados")
-
-        st.dataframe(
-            tabela,
-            use_container_width=True,
-            hide_index=True
-        )
-
-        st.markdown("### Gráfico de resultados")
-
-        st.pyplot(
-            grafico,
-            use_container_width=True
-        )
-
-        plt.close(grafico)
-
-        st.markdown("### Mapa de sensibilidade")
-
-        st.pyplot(
-            mapa,
-            use_container_width=True
-        )
-
-        plt.close(mapa)
-
-        st.markdown("### Relatório experimental estruturado")
-
-        secoes = relatorio.split("\n\n")
-
-        html_secoes = ""
-
-        for secao in secoes:
-
-            linhas = secao.split("\n")
-
-            titulo_secao = linhas[0]
-            conteudo = linhas[1:]
-
-            html_secoes += (
-                '<div class="secao">'
-                + escape(titulo_secao)
-                + '</div>'
-            )
-
-            for linha in conteudo:
-
-                if linha.strip():
-                    html_secoes += (
-                        '<div class="texto">'
-                        + escape(linha)
-                        + '</div>'
-                    )
-
-        st.html(
-            f"""
-            <div class="relatorio-radvision">
-                <div class="marca">RADVISION IA</div>
-
-                <div class="slogan">
-                    Tecnologia e precisão em cada imagem.
-                </div>
-
-                {html_secoes}
-
-                <div class="aviso">
-                    <b>AVISO:</b> ferramenta experimental
-                    para fins acadêmicos. Os resultados
-                    não representam diagnóstico e não
-                    substituem a avaliação profissional.
-                </div>
-            </div>
-            """
-        )
-
-        st.download_button(
-            label="📄 BAIXAR RELATÓRIO EM PDF",
-            data=pdf,
-            file_name="relatorio_radvision_ia.pdf",
-            mime="application/pdf",
-            use_container_width=True
-        )
-
-
-# ==========================================
-# HISTÓRICO DE ANÁLISES
-# ==========================================
-
-st.divider()
-
-st.markdown("## HISTÓRICO DE ANÁLISES")
-
-st.caption(
-    "As análises ficam disponíveis enquanto esta sessão do "
-    "aplicativo estiver aberta. Ao reiniciar a sessão, o histórico será apagado."
-)
-
-if st.session_state.historico_analises:
-
-    coluna_historico, coluna_limpar = st.columns([3, 1])
-
-    with coluna_historico:
-        st.markdown(
-            f"**Análises realizadas nesta sessão: "
-            f"{len(st.session_state.historico_analises)}**"
-        )
-
-    with coluna_limpar:
-
-        if st.button(
-            "LIMPAR HISTÓRICO",
-            use_container_width=True
-        ):
-
-            st.session_state.historico_analises = []
-            st.rerun()
-
-    for indice, item in enumerate(
-        st.session_state.historico_analises
-    ):
-
-        titulo_item = (
-            f"{item['data_hora']} | {item['arquivo']} | "
-            f"Incidência: {item['incidencia']}"
-        )
-
-        with st.expander(titulo_item):
-
-            coluna_inc_hist, coluna_escore_hist = st.columns(2)
-
-            with coluna_inc_hist:
-                st.metric(
-                    "Incidência sugerida",
-                    item["incidencia"]
-                )
-
-            with coluna_escore_hist:
-                st.metric(
-                    "Escore do classificador",
-                    f"{item['escore_incidencia']:.2f}%"
-                )
-
-            st.markdown("### Achados identificados")
-
-            st.dataframe(
-                item["tabela"],
-                use_container_width=True,
-                hide_index=True
-            )
-
-            st.markdown("### Relatório experimental")
-
-            st.text(item["relatorio"])
-
-            st.download_button(
-                label="📄 BAIXAR ESTE RELATÓRIO EM PDF",
-                data=item["pdf"],
-                file_name=(
-                    f"relatorio_radvision_historico_{indice + 1}.pdf"
-                ),
-                mime="application/pdf",
-                use_container_width=True,
-                key=f"historico_pdf_{indice}"
-            )
-
-else:
-
-    st.info(
-        "Nenhuma análise foi armazenada nesta sessão. "
-        "Envie uma radiografia e clique em ANALISAR RADIOGRAFIA."
-    )
-
-
-# ==========================================
-# RODAPÉ
-# ==========================================
-
-st.divider()
-
-st.markdown("""
-<div style="text-align:center; padding:15px;">
-    <h3>RADVISION IA | Projeto acadêmico</h3>
-    <p>
-        Sistema experimental de análise de radiografias
-        de tórax.
-    </p>
-    <p>
-        Os resultados não substituem a avaliação
-        de um profissional habilitado.
-    </p>
-</div>
-""", unsafe_allow_html=True)
