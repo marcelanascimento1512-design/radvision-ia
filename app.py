@@ -63,7 +63,7 @@ def traduzir_achado(nome):
 
 
 # ==========================================
-# APARÊNCIA VISUAL
+# IDENTIDADE VISUAL
 # ==========================================
 
 st.markdown("""
@@ -75,8 +75,17 @@ html, body, [class*="css"] {
 }
 
 .stApp {
-    background: linear-gradient(135deg, #080D22, #151638);
-    color: white;
+    background:
+        radial-gradient(circle at 12% 8%, rgba(85,69,217,0.20), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(128,73,232,0.16), transparent 25%),
+        linear-gradient(135deg, #070B1C 0%, #10152F 48%, #171536 100%);
+    color: #FFFFFF;
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    max-width: 1450px;
 }
 
 h1, h2, h3, p, label {
@@ -84,7 +93,7 @@ h1, h2, h3, p, label {
 }
 
 h1 {
-    color: white;
+    color: #FFFFFF;
     font-weight: 800;
 }
 
@@ -92,14 +101,128 @@ h2, h3 {
     color: #C4B5FD;
 }
 
+/* CABEÇALHO */
+
+.radvision-hero {
+    background: linear-gradient(
+        110deg,
+        rgba(37,41,79,0.98),
+        rgba(54,39,105,0.94)
+    );
+    border: 1px solid rgba(167,139,250,0.65);
+    border-left: 5px solid #A78BFA;
+    border-radius: 18px;
+    padding: 25px 28px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.30);
+    min-height: 155px;
+}
+
+.radvision-kicker {
+    color: #C4B5FD;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.radvision-hero h1 {
+    margin: 7px 0 3px 0;
+    font-size: 36px;
+}
+
+.radvision-hero p {
+    color: #E9E5FF;
+    margin: 0;
+}
+
+/* LOGO */
+
+[data-testid="stImage"] img {
+    border-radius: 14px;
+    filter: contrast(1.08) brightness(1.06);
+}
+
+/* TÍTULOS DE SEÇÃO */
+
+.radvision-section {
+    color: #D5C9FF;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(167,139,250,0.30);
+}
+
+/* ÁREA DE ENVIO DE IMAGEM */
+
+[data-testid="stFileUploader"] {
+    background: linear-gradient(
+        145deg,
+        rgba(43,48,91,0.96),
+        rgba(37,35,78,0.96)
+    ) !important;
+    border: 2px solid #8B78F0 !important;
+    border-radius: 18px !important;
+    padding: 18px !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+}
+
+[data-testid="stFileUploader"] section {
+    background: rgba(24,29,62,0.95) !important;
+    border: 2px dashed #A78BFA !important;
+    border-radius: 14px !important;
+    padding: 22px 12px !important;
+}
+
+[data-testid="stFileUploader"] section:hover {
+    border-color: #D0BCFF !important;
+    background: rgba(48,43,100,0.95) !important;
+}
+
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label p {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+[data-testid="stFileUploader"] small {
+    color: #D8D1FF !important;
+}
+
+[data-testid="stFileUploader"] button {
+    background: linear-gradient(90deg, #5545D9, #8049E8) !important;
+    color: #FFFFFF !important;
+    border: 1px solid #B9A9FF !important;
+    border-radius: 9px !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stFileUploader"] button p {
+    color: #FFFFFF !important;
+}
+
+/* BOTÕES */
+
 div.stButton > button {
     background: linear-gradient(90deg, #5545D9, #8049E8) !important;
     color: #FFFFFF !important;
-    border: none !important;
-    border-radius: 10px !important;
-    font-weight: 700 !important;
-    padding: 12px 25px !important;
+    border: 1px solid #A78BFA !important;
+    border-radius: 11px !important;
+    font-weight: 800 !important;
+    padding: 13px 20px !important;
     width: 100%;
+    min-height: 48px;
+    transition: 0.2s ease;
+}
+
+div.stButton > button p {
+    color: #FFFFFF !important;
+}
+
+div.stButton > button:hover {
+    background: linear-gradient(90deg, #705FEA, #9865F0) !important;
+    border-color: #D0BCFF !important;
+    box-shadow: 0 0 18px rgba(139,120,240,0.35);
 }
 
 div[data-testid="stDownloadButton"] > button {
@@ -118,22 +241,6 @@ div[data-testid="stDownloadButton"] > button span,
 div[data-testid="stDownloadButton"] > button svg {
     color: #FFFFFF !important;
     fill: #FFFFFF !important;
-}
-
-div[data-testid="stDownloadButton"] > button:hover {
-    background: #7659E8 !important;
-    color: #FFFFFF !important;
-}
-
-div.stButton > button:hover {
-    background: #7659E8 !important;
-    color: white !important;
-}
-
-[data-testid="stFileUploader"] {
-    border: 1px solid #5545D9;
-    border-radius: 12px;
-    padding: 12px;
 }
 
 /* INDICADORES */
@@ -165,11 +272,34 @@ div.stButton > button:hover {
     line-height: 1.3 !important;
 }
 
-hr {
-    border-color: #5545D9;
+/* CAIXAS E COMPONENTES */
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+    border: 1px solid rgba(167,139,250,0.28) !important;
+    border-radius: 16px !important;
+    background: rgba(25,30,66,0.48) !important;
 }
 
-/* RELATÓRIO NA TELA */
+[data-testid="stSelectbox"] > div > div {
+    background: #20264B !important;
+    border: 1px solid #7565D9 !important;
+    border-radius: 10px !important;
+    color: #FFFFFF !important;
+}
+
+[data-testid="stDataFrame"] {
+    border: 1px solid rgba(130,114,232,0.45);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+[data-testid="stExpander"] {
+    border: 1px solid rgba(130,114,232,0.42) !important;
+    border-radius: 12px !important;
+    background: rgba(32,38,75,0.45);
+}
+
+/* RELATÓRIO */
 
 .relatorio-radvision {
     background: #25294F;
@@ -212,12 +342,6 @@ hr {
     line-height: 1.8;
 }
 
-.relatorio-radvision .destaque {
-    color: #FFFFFF;
-    font-size: 20px;
-    font-weight: 800;
-}
-
 .relatorio-radvision .aviso {
     background: #34345D;
     border-radius: 8px;
@@ -228,94 +352,19 @@ hr {
     margin-top: 18px;
 }
 
-/* IDENTIDADE VISUAL APRIMORADA */
-
-.stApp {
-    background:
-        radial-gradient(circle at 12% 8%, rgba(85,69,217,0.18), transparent 28%),
-        radial-gradient(circle at 88% 18%, rgba(128,73,232,0.13), transparent 25%),
-        linear-gradient(135deg, #070B1C 0%, #10152F 48%, #171536 100%);
-}
-
-.block-container {
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-    max-width: 1450px;
-}
-
-[data-testid="stVerticalBlockBorderWrapper"] {
-    border: 1px solid rgba(167,139,250,0.28) !important;
-    border-radius: 16px !important;
-    background: rgba(25,30,66,0.48) !important;
-}
-
-[data-testid="stFileUploader"] section {
-    background: rgba(37,41,79,0.55);
-    border: 1px dashed #8B78F0;
-    border-radius: 14px;
-}
-
-[data-testid="stSelectbox"] > div > div {
-    background: #20264B !important;
-    border: 1px solid #7565D9 !important;
-    border-radius: 10px !important;
-    color: white !important;
-}
-
-[data-testid="stDataFrame"] {
-    border: 1px solid rgba(130,114,232,0.45);
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-[data-testid="stExpander"] {
-    border: 1px solid rgba(130,114,232,0.42) !important;
-    border-radius: 12px !important;
-    background: rgba(32,38,75,0.45);
-}
-
-.radvision-hero {
-    background: linear-gradient(110deg, rgba(37,41,79,0.96), rgba(54,39,105,0.88));
-    border: 1px solid rgba(167,139,250,0.55);
-    border-left: 5px solid #A78BFA;
-    border-radius: 18px;
-    padding: 22px 26px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.22);
-}
-
-.radvision-kicker {
-    color:#B9A9FF;
-    font-size:11px;
-    font-weight:800;
-    letter-spacing:2px;
-}
-
-.radvision-hero h1 {
-    margin:4px 0 2px 0;
-    font-size:34px;
-}
-
-.radvision-hero p {
-    color:#DCD8F8;
-    margin:0;
-}
-
-.radvision-section {
-    color:#D5C9FF;
-    font-size:12px;
-    font-weight:800;
-    letter-spacing:1.5px;
-    padding: 9px 0;
-    border-bottom:1px solid rgba(167,139,250,0.25);
-}
+/* AVISOS */
 
 .radvision-note {
-    background:rgba(48,44,91,0.72);
-    border:1px solid rgba(167,139,250,0.35);
-    border-radius:12px;
-    padding:14px 16px;
-    color:#E9E5FF;
-    line-height:1.65;
+    background: rgba(48,44,91,0.72);
+    border: 1px solid rgba(167,139,250,0.35);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #E9E5FF;
+    line-height: 1.65;
+}
+
+hr {
+    border-color: #5545D9;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -324,10 +373,6 @@ hr {
 # ==========================================
 # MODELO DE IDENTIFICAÇÃO DA INCIDÊNCIA
 # ==========================================
-
-# Este modelo não fica armazenado em cache.
-# Ele será liberado após a identificação da incidência,
-# antes de carregar o segundo modelo.
 
 def carregar_modelo_incidencia():
 
@@ -380,8 +425,6 @@ def identificar_incidencia(arquivo):
     escore = float(
         pontuacoes_view[indice].item()
     ) * 100
-
-    # LIBERAÇÃO DA MEMÓRIA DO PRIMEIRO MODELO
 
     del saida_view
     del pontuacoes_view
@@ -460,7 +503,7 @@ def preparar_imagem(arquivo):
 
 
 # ==========================================
-# CONSTRUÇÃO DO RELATÓRIO ESTRUTURADO
+# RELATÓRIO ESTRUTURADO
 # ==========================================
 
 def construir_relatorio(
@@ -471,9 +514,7 @@ def construir_relatorio(
 
     linhas = []
 
-    linhas.append(
-        "RESUMO DA ANÁLISE COMPUTACIONAL"
-    )
+    linhas.append("RESUMO DA ANÁLISE COMPUTACIONAL")
 
     linhas.append(
         "O sistema realizou uma análise experimental "
@@ -481,7 +522,6 @@ def construir_relatorio(
     )
 
     linhas.append("")
-
     linhas.append("1. IDENTIFICAÇÃO DA INCIDÊNCIA")
 
     linhas.append(
@@ -498,7 +538,6 @@ def construir_relatorio(
     )
 
     linhas.append("")
-
     linhas.append("2. PRINCIPAIS ESCORES DO MODELO")
 
     if principais:
@@ -507,12 +546,9 @@ def construir_relatorio(
                 f"- {traduzir_achado(nome)}: {float(valor):.4f}"
             )
     else:
-        linhas.append(
-            "Não foram disponibilizados resultados."
-        )
+        linhas.append("Não foram disponibilizados resultados.")
 
     linhas.append("")
-
     linhas.append("3. OBSERVAÇÕES TÉCNICAS")
 
     linhas.append(
@@ -532,7 +568,6 @@ def construir_relatorio(
     )
 
     linhas.append("")
-
     linhas.append("4. CONCLUSÃO EXPERIMENTAL")
 
     linhas.append(
@@ -743,9 +778,6 @@ def analisar_radiografia(arquivo):
         arquivo
     )
 
-    # Neste ponto, o primeiro modelo já foi liberado.
-    # Agora carregamos o modelo de análise radiográfica.
-
     modelo = carregar_modelo()
 
     imagem, entrada = preparar_imagem(arquivo)
@@ -773,8 +805,6 @@ def analisar_radiografia(arquivo):
         for nome, valor in analise
     ]
 
-    # GRÁFICO
-
     fig, ax = plt.subplots(figsize=(10, 6))
 
     nomes = [
@@ -798,8 +828,6 @@ def analisar_radiografia(arquivo):
     ax.grid(axis="x", alpha=0.2)
 
     fig.tight_layout()
-
-    # MAPA DE SENSIBILIDADE
 
     entrada_mapa = entrada.detach().clone()
     entrada_mapa.requires_grad_(True)
@@ -832,8 +860,6 @@ def analisar_radiografia(arquivo):
 
     fig_mapa.tight_layout()
 
-    # RELATÓRIO ESTRUTURADO
-
     relatorio = construir_relatorio(
         incidencia,
         escore_incidencia,
@@ -862,22 +888,30 @@ def analisar_radiografia(arquivo):
 # CABEÇALHO
 # ==========================================
 
-coluna_logo, coluna_titulo = st.columns([1, 3])
+coluna_logo, coluna_titulo = st.columns(
+    [1, 3],
+    vertical_alignment="center"
+)
 
 with coluna_logo:
 
     if os.path.exists("IMG_5787.jpeg"):
-        st.image("IMG_5787.jpeg", width=190)
+        st.image("IMG_5787.jpeg", width=210)
     else:
         st.markdown("## 🩻")
 
 with coluna_titulo:
-        st.markdown("""
+
+    st.markdown("""
     <div class="radvision-hero">
-        <div class="radvision-kicker">PLATAFORMA DE ANÁLISE RADIOGRÁFICA</div>
+        <div class="radvision-kicker">
+            PLATAFORMA DE ANÁLISE RADIOGRÁFICA
+        </div>
         <h1>RADVISION <span style="color:#B9A9FF;">IA</span></h1>
         <p><b>Tecnologia e precisão em cada imagem.</b></p>
-        <p style="font-size:13px; margin-top:8px;">Análise experimental de radiografias de tórax</p>
+        <p style="font-size:13px; margin-top:8px;">
+            Análise experimental de radiografias de tórax
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -888,11 +922,20 @@ st.divider()
 # INTERFACE PRINCIPAL
 # ==========================================
 
-# O histórico fica disponível enquanto esta sessão do aplicativo estiver aberta.
 if "historico_analises" not in st.session_state:
     st.session_state.historico_analises = []
 
 st.markdown("## ENVIO DA RADIOGRAFIA")
+
+st.markdown("""
+<div class="radvision-note">
+    <b>ÁREA DE ENVIO</b><br>
+    Selecione uma radiografia de tórax nos formatos JPG, JPEG ou PNG
+    para iniciar a análise computacional experimental.
+</div>
+""", unsafe_allow_html=True)
+
+st.write("")
 
 coluna_imagem, coluna_resultado = st.columns(
     [1, 1.4],
@@ -901,9 +944,12 @@ coluna_imagem, coluna_resultado = st.columns(
 
 with coluna_imagem:
 
+    st.markdown("### 📤 Adicionar radiografia")
+
     arquivo = st.file_uploader(
-        "Selecionar radiografia de tórax",
-        type=["jpg", "jpeg", "png"]
+        "Clique abaixo para selecionar sua imagem",
+        type=["jpg", "jpeg", "png"],
+        help="Formatos aceitos: JPG, JPEG e PNG"
     )
 
     if arquivo is not None:
@@ -914,8 +960,10 @@ with coluna_imagem:
             use_container_width=True
         )
 
+        st.success("Imagem carregada com sucesso.")
+
     analisar = st.button(
-        "ANALISAR RADIOGRAFIA",
+        "🩻 ANALISAR RADIOGRAFIA",
         use_container_width=True
     )
 
@@ -951,8 +999,6 @@ with coluna_resultado:
                         pdf
                     ) = analisar_radiografia(arquivo)
 
-                # Guarda apenas os resultados essenciais para não manter
-                # gráficos e mapas pesados ocupando memória no histórico.
                 registro = {
                     "data_hora": datetime.now().strftime("%d/%m/%Y às %H:%M"),
                     "arquivo": arquivo.name,
@@ -1132,7 +1178,7 @@ if len(st.session_state.historico_analises) >= 2:
         indice_a = st.selectbox(
             "Primeira análise",
             options=opcoes_comparacao,
-            index=1 if len(opcoes_comparacao) > 1 else 0,
+            index=1,
             format_func=rotulo_analise,
             key="comparacao_analise_a"
         )
@@ -1230,8 +1276,6 @@ if len(st.session_state.historico_analises) >= 2:
         use_container_width=True,
         hide_index=True
     )
-
-    # GRÁFICO COMPARATIVO
 
     maiores_diferencas = tabela_comparacao[:10]
 
