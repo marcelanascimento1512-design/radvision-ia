@@ -417,6 +417,44 @@ def configurar_grafico(fig, ax):
 
 
 # ==========================================
+# VISUALIZADOR E ZOOM DA RADIOGRAFIA
+# ==========================================
+
+def visualizar_zoom(imagem_pil, zoom, horizontal, vertical):
+
+    largura, altura = imagem_pil.size
+
+    largura_corte = max(1, int(largura / zoom))
+    altura_corte = max(1, int(altura / zoom))
+
+    deslocamento_x = int(
+        (largura - largura_corte) * (horizontal / 100)
+    )
+
+    deslocamento_y = int(
+        (altura - altura_corte) * (vertical / 100)
+    )
+
+    imagem_cortada = imagem_pil.crop((
+        deslocamento_x,
+        deslocamento_y,
+        deslocamento_x + largura_corte,
+        deslocamento_y + altura_corte
+    ))
+
+    return imagem_cortada.resize(
+        (largura, altura),
+        Image.Resampling.LANCZOS
+    )
+
+
+def redefinir_visualizacao():
+    st.session_state.zoom_radiografia = 1.0
+    st.session_state.horizontal_radiografia = 50
+    st.session_state.vertical_radiografia = 50
+
+
+# ==========================================
 # MODELO DE IDENTIFICAÇÃO DA INCIDÊNCIA
 # ==========================================
 
@@ -1062,11 +1100,61 @@ with coluna_imagem:
 
     if arquivo is not None:
 
-        st.image(
-            arquivo,
-            caption="Radiografia enviada",
-            use_container_width=True
-        )
+        imagem_original = Image.open(
+            BytesIO(arquivo.getvalue())
+        ).convert("RGB")
+
+        st.markdown("#### 🔎 Visualizador da radiografia")
+
+        with st.expander(
+            "Ampliar e explorar a imagem",
+            expanded=True
+        ):
+
+            zoom = st.slider(
+                "Ampliação da imagem",
+                min_value=1.0,
+                max_value=3.0,
+                value=1.0,
+                step=0.25,
+                key="zoom_radiografia"
+            )
+
+            horizontal = st.slider(
+                "Movimentação horizontal",
+                min_value=0,
+                max_value=100,
+                value=50,
+                key="horizontal_radiografia"
+            )
+
+            vertical = st.slider(
+                "Movimentação vertical",
+                min_value=0,
+                max_value=100,
+                value=50,
+                key="vertical_radiografia"
+            )
+
+            imagem_visualizacao = visualizar_zoom(
+                imagem_original,
+                zoom,
+                horizontal,
+                vertical
+            )
+
+            st.image(
+                imagem_visualizacao,
+                caption=f"Visualização ampliada — {zoom:.2f}x",
+                use_container_width=True
+            )
+
+            st.button(
+                "↩️ REDEFINIR VISUALIZAÇÃO",
+                key="botao_reset_visualizacao",
+                on_click=redefinir_visualizacao,
+                use_container_width=True
+            )
 
         st.success("Imagem carregada com sucesso.")
 
@@ -1123,7 +1211,7 @@ with coluna_resultado:
                     "Análise computacional concluída!"
                 )
 
-                # PAINEL DE RESULTADOS CORRIGIDO
+                # PAINEL DE RESULTADOS
 
                 maior_achado = tabela[0]["Achado identificado"]
                 maior_escore = tabela[0]["Escore do modelo"]
@@ -1488,7 +1576,7 @@ if len(st.session_state.historico_analises) >= 2:
 
     ax_comp.grid(axis="y", visible=False)
 
-    legenda = ax_comp.legend(
+    ax_comp.legend(
         facecolor="#25294F",
         edgecolor="#8272E8",
         labelcolor="#FFFFFF"
