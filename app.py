@@ -116,6 +116,39 @@ h2, h3 {
     padding: 25px 28px;
     box-shadow: 0 12px 35px rgba(0,0,0,0.30);
     min-height: 155px;
+    box-sizing: border-box;
+}
+
+.radvision-header .radvision-kicker {
+    color: #C4B5FD;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.radvision-header h1 {
+    margin: 7px 0 7px 0;
+    font-size: 36px;
+    line-height: 1.15;
+    color: #FFFFFF;
+    font-weight: 800;
+}
+
+.radvision-header h1 span {
+    color: #B9A9FF;
+}
+
+.radvision-header p {
+    color: #E9E5FF;
+    margin: 0;
+    font-size: 15px;
+}
+
+.radvision-header .radvision-subtitle {
+    font-size: 13px;
+    margin-top: 10px;
+    color: #C9D4FF;
 }
 
 /* LOGO RADVISION IA */
@@ -1054,26 +1087,25 @@ with coluna_titulo:
     st.markdown(
         """
         <div class="radvision-header">
+            <div class="radvision-kicker">
+                PLATAFORMA DE ANÁLISE RADIOGRÁFICA
+            </div>
+
+            <h1>
+                RADVISION <span>IA</span>
+            </h1>
+
+            <p>
+                <strong>
+                    Tecnologia e precisão em cada imagem.
+                </strong>
+            </p>
+
+            <p class="radvision-subtitle">
+                Análise experimental de radiografias de tórax
+            </p>
+        </div>
         """,
-        unsafe_allow_html=True
-    )
-
-    st.caption("PLATAFORMA DE ANÁLISE RADIOGRÁFICA")
-
-    st.markdown(
-        "# RADVISION :violet[IA]"
-    )
-
-    st.markdown(
-        "**Tecnologia e precisão em cada imagem.**"
-    )
-
-    st.caption(
-        "Análise experimental de radiografias de tórax"
-    )
-
-    st.markdown(
-        "</div>",
         unsafe_allow_html=True
     )
 
