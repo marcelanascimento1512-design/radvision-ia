@@ -104,7 +104,7 @@ h2, h3 {
 
 /* CABEÇALHO */
 
-.radvision-hero {
+.radvision-header {
     background: linear-gradient(
         110deg,
         rgba(37,41,79,0.98),
@@ -118,23 +118,6 @@ h2, h3 {
     min-height: 155px;
 }
 
-.radvision-kicker {
-    color: #C4B5FD;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 2px;
-}
-
-.radvision-hero h1 {
-    margin: 7px 0 3px 0;
-    font-size: 36px;
-}
-
-.radvision-hero p {
-    color: #E9E5FF;
-    margin: 0;
-}
-
 /* LOGO RADVISION IA */
 
 [data-testid="stImage"] img {
@@ -142,8 +125,8 @@ h2, h3 {
     filter:
         contrast(1.12)
         brightness(1.10)
-        drop-shadow(0 0 12px rgba(89, 139, 255, 0.35))
-        drop-shadow(0 0 20px rgba(139, 92, 246, 0.22));
+        drop-shadow(0 0 12px rgba(89,139,255,0.40))
+        drop-shadow(0 0 22px rgba(139,92,246,0.30));
     transition: all 0.3s ease;
 }
 
@@ -151,8 +134,8 @@ h2, h3 {
     filter:
         contrast(1.15)
         brightness(1.15)
-        drop-shadow(0 0 18px rgba(89, 139, 255, 0.55))
-        drop-shadow(0 0 28px rgba(139, 92, 246, 0.35));
+        drop-shadow(0 0 18px rgba(89,139,255,0.60))
+        drop-shadow(0 0 30px rgba(139,92,246,0.40));
 }
 
 /* TÍTULOS */
@@ -1046,7 +1029,7 @@ def analisar_radiografia(arquivo):
 
 
 # ==========================================
-# CABEÇALHO
+# CABEÇALHO RADVISION IA
 # ==========================================
 
 coluna_logo, coluna_titulo = st.columns(
@@ -1068,30 +1051,31 @@ with coluna_logo:
 
 with coluna_titulo:
 
-    st.markdown("""
-    <div class="radvision-hero">
-        <div class="radvision-kicker">
-            PLATAFORMA DE ANÁLISE RADIOGRÁFICA
-        </div>
+    st.markdown(
+        """
+        <div class="radvision-header">
+        """,
+        unsafe_allow_html=True
+    )
 
-        <h1>
-            RADVISION
-            <span style="color:#B9A9FF;">IA</span>
-        </h1>
+    st.caption("PLATAFORMA DE ANÁLISE RADIOGRÁFICA")
 
-        <p>
-            <b>Tecnologia e precisão em cada imagem.</b>
-        </p>
+    st.markdown(
+        "# RADVISION :violet[IA]"
+    )
 
-        <p style="
-            font-size:13px;
-            margin-top:10px;
-            color:#C9D4FF;
-        ">
-            Análise experimental de radiografias de tórax
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        "**Tecnologia e precisão em cada imagem.**"
+    )
+
+    st.caption(
+        "Análise experimental de radiografias de tórax"
+    )
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True
+    )
 
 st.divider()
 
