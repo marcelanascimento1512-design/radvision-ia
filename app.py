@@ -135,11 +135,24 @@ h2, h3 {
     margin: 0;
 }
 
-/* LOGO */
+/* LOGO RADVISION IA */
 
 [data-testid="stImage"] img {
-    border-radius: 14px;
-    filter: contrast(1.08) brightness(1.06);
+    border-radius: 18px;
+    filter:
+        contrast(1.12)
+        brightness(1.10)
+        drop-shadow(0 0 12px rgba(89, 139, 255, 0.35))
+        drop-shadow(0 0 20px rgba(139, 92, 246, 0.22));
+    transition: all 0.3s ease;
+}
+
+[data-testid="stImage"] img:hover {
+    filter:
+        contrast(1.15)
+        brightness(1.15)
+        drop-shadow(0 0 18px rgba(89, 139, 255, 0.55))
+        drop-shadow(0 0 28px rgba(139, 92, 246, 0.35));
 }
 
 /* TÍTULOS */
@@ -397,6 +410,7 @@ hr {
 # ==========================================
 
 def configurar_grafico(fig, ax):
+
     fig.patch.set_facecolor("#171B3A")
     ax.set_facecolor("#20264B")
 
@@ -449,6 +463,7 @@ def visualizar_zoom(imagem_pil, zoom, horizontal, vertical):
 
 
 def redefinir_visualizacao():
+
     st.session_state.zoom_radiografia = 1.0
     st.session_state.horizontal_radiografia = 50
     st.session_state.vertical_radiografia = 50
@@ -1035,14 +1050,19 @@ def analisar_radiografia(arquivo):
 # ==========================================
 
 coluna_logo, coluna_titulo = st.columns(
-    [1, 3],
+    [1.15, 3],
     vertical_alignment="center"
 )
 
 with coluna_logo:
 
     if os.path.exists("IMG_5787.jpeg"):
-        st.image("IMG_5787.jpeg", width=210)
+
+        st.image(
+            "IMG_5787.jpeg",
+            width=280
+        )
+
     else:
         st.markdown("## 🩻")
 
@@ -1053,9 +1073,21 @@ with coluna_titulo:
         <div class="radvision-kicker">
             PLATAFORMA DE ANÁLISE RADIOGRÁFICA
         </div>
-        <h1>RADVISION <span style="color:#B9A9FF;">IA</span></h1>
-        <p><b>Tecnologia e precisão em cada imagem.</b></p>
-        <p style="font-size:13px; margin-top:8px;">
+
+        <h1>
+            RADVISION
+            <span style="color:#B9A9FF;">IA</span>
+        </h1>
+
+        <p>
+            <b>Tecnologia e precisão em cada imagem.</b>
+        </p>
+
+        <p style="
+            font-size:13px;
+            margin-top:10px;
+            color:#C9D4FF;
+        ">
             Análise experimental de radiografias de tórax
         </p>
     </div>
