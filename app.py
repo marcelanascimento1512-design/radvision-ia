@@ -1084,30 +1084,20 @@ with coluna_logo:
 
 with coluna_titulo:
 
-    st.markdown(
-        """
-        <div class="radvision-header">
-            <div class="radvision-kicker">
-                PLATAFORMA DE ANÁLISE RADIOGRÁFICA
-            </div>
-
-            <h1>
-                RADVISION <span>IA</span>
-            </h1>
-
-            <p>
-                <strong>
-                    Tecnologia e precisão em cada imagem.
-                </strong>
-            </p>
-
-            <p class="radvision-subtitle">
-                Análise experimental de radiografias de tórax
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.html("""
+<div class="radvision-header">
+    <div class="radvision-kicker">
+        PLATAFORMA DE ANÁLISE RADIOGRÁFICA
+    </div>
+    <h1>RADVISION <span>IA</span></h1>
+    <p>
+        <strong>Tecnologia e precisão em cada imagem.</strong>
+    </p>
+    <p class="radvision-subtitle">
+        Análise experimental de radiografias de tórax
+    </p>
+</div>
+""")
 
 st.divider()
 
