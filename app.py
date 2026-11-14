@@ -310,6 +310,46 @@ div[data-testid="stDownloadButton"] > button svg {
     line-height: 1.3 !important;
 }
 
+/* CARTÕES COMPACTOS DO PAINEL DE RESULTADOS */
+
+.resultado-card {
+    background: linear-gradient(145deg, #25294F, #29234F);
+    border: 1px solid #8272E8;
+    border-radius: 12px;
+    padding: 13px 12px;
+    min-height: 112px;
+    box-shadow: 0 4px 13px rgba(0,0,0,0.20);
+    box-sizing: border-box;
+}
+
+.resultado-label {
+    color: #D8D0FF;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    margin-bottom: 10px;
+}
+
+.resultado-valor {
+    color: #FFFFFF;
+    font-size: 25px;
+    line-height: 1.2;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+    margin-bottom: 7px;
+}
+
+.resultado-valor.nome {
+    font-size: 15px;
+    line-height: 1.35;
+}
+
+.resultado-descricao {
+    color: #C9C5E8;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
 /* CAIXAS */
 
 [data-testid="stVerticalBlockBorderWrapper"] {
@@ -444,45 +484,6 @@ def configurar_grafico(fig, ax):
         alpha=0.22,
         linestyle="--"
     )
-
-
-# ==========================================
-# VISUALIZADOR E ZOOM DA RADIOGRAFIA
-# ==========================================
-
-def visualizar_zoom(imagem_pil, zoom, horizontal, vertical):
-
-    largura, altura = imagem_pil.size
-
-    largura_corte = max(1, int(largura / zoom))
-    altura_corte = max(1, int(altura / zoom))
-
-    deslocamento_x = int(
-        (largura - largura_corte) * (horizontal / 100)
-    )
-
-    deslocamento_y = int(
-        (altura - altura_corte) * (vertical / 100)
-    )
-
-    imagem_cortada = imagem_pil.crop((
-        deslocamento_x,
-        deslocamento_y,
-        deslocamento_x + largura_corte,
-        deslocamento_y + altura_corte
-    ))
-
-    return imagem_cortada.resize(
-        (largura, altura),
-        Image.Resampling.LANCZOS
-    )
-
-
-def redefinir_visualizacao():
-
-    st.session_state.zoom_radiografia = 1.0
-    st.session_state.horizontal_radiografia = 50
-    st.session_state.vertical_radiografia = 50
 
 
 # ==========================================
@@ -1142,57 +1143,13 @@ with coluna_imagem:
             BytesIO(arquivo.getvalue())
         ).convert("RGB")
 
-        st.markdown("#### 🔎 Visualizador da radiografia")
+        st.markdown("#### 🔎 Visualização da radiografia")
 
-        with st.expander(
-            "Ampliar e explorar a imagem",
-            expanded=True
-        ):
-
-            zoom = st.slider(
-                "Ampliação da imagem",
-                min_value=1.0,
-                max_value=3.0,
-                value=1.0,
-                step=0.25,
-                key="zoom_radiografia"
-            )
-
-            horizontal = st.slider(
-                "Movimentação horizontal",
-                min_value=0,
-                max_value=100,
-                value=50,
-                key="horizontal_radiografia"
-            )
-
-            vertical = st.slider(
-                "Movimentação vertical",
-                min_value=0,
-                max_value=100,
-                value=50,
-                key="vertical_radiografia"
-            )
-
-            imagem_visualizacao = visualizar_zoom(
-                imagem_original,
-                zoom,
-                horizontal,
-                vertical
-            )
-
-            st.image(
-                imagem_visualizacao,
-                caption=f"Visualização ampliada — {zoom:.2f}x",
-                use_container_width=True
-            )
-
-            st.button(
-                "↩️ REDEFINIR VISUALIZAÇÃO",
-                key="botao_reset_visualizacao",
-                on_click=redefinir_visualizacao,
-                use_container_width=True
-            )
+        st.image(
+            imagem_original,
+            caption="Radiografia enviada",
+            use_container_width=True
+        )
 
         st.success("Imagem carregada com sucesso.")
 
@@ -1256,25 +1213,58 @@ with coluna_resultado:
 
                 st.markdown("### PAINEL DE RESULTADOS")
 
-                cartao1, cartao2, cartao3 = st.columns(3)
+                cartao1, cartao2, cartao3 = st.columns(
+                    3,
+                    gap="small"
+                )
 
                 with cartao1:
-                    with st.container(border=True):
-                        st.caption("INCIDÊNCIA SUGERIDA")
-                        st.markdown(f"## {incidencia}")
-                        st.caption("Classificação automática da imagem")
+
+                    st.html(f"""
+                    <div class="resultado-card">
+                        <div class="resultado-label">
+                            INCIDÊNCIA SUGERIDA
+                        </div>
+                        <div class="resultado-valor">
+                            {escape(incidencia)}
+                        </div>
+                        <div class="resultado-descricao">
+                            Classificação automática da imagem
+                        </div>
+                    </div>
+                    """)
 
                 with cartao2:
-                    with st.container(border=True):
-                        st.caption("ESCORE DO CLASSIFICADOR")
-                        st.markdown(f"## {escore_incidencia:.2f}%")
-                        st.caption("Pontuação da classificação")
+
+                    st.html(f"""
+                    <div class="resultado-card">
+                        <div class="resultado-label">
+                            ESCORE DO CLASSIFICADOR
+                        </div>
+                        <div class="resultado-valor">
+                            {escore_incidencia:.2f}%
+                        </div>
+                        <div class="resultado-descricao">
+                            Pontuação da classificação
+                        </div>
+                    </div>
+                    """)
 
                 with cartao3:
-                    with st.container(border=True):
-                        st.caption("MAIOR ESCORE DO MODELO")
-                        st.markdown(f"**{maior_achado}**")
-                        st.caption(f"Escore numérico: {maior_escore:.4f}")
+
+                    st.html(f"""
+                    <div class="resultado-card">
+                        <div class="resultado-label">
+                            MAIOR ESCORE DO MODELO
+                        </div>
+                        <div class="resultado-valor nome">
+                            {escape(maior_achado)}
+                        </div>
+                        <div class="resultado-descricao">
+                            Escore numérico: {maior_escore:.4f}
+                        </div>
+                    </div>
+                    """)
 
                 st.caption(
                     "Os escores são saídas dos modelos computacionais. "
