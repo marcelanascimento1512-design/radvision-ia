@@ -600,14 +600,30 @@ div[data-testid="stDownloadButton"] > button svg {
     overflow: hidden;
 }
 
+/* HISTÓRICO — MAIOR CONTRASTE PARA DATA E NOME DA IMAGEM */
+
 [data-testid="stExpander"] summary {
-    color: #E9E5FF !important;
-    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
 }
 
-[data-testid="stExpander"] summary:hover {
-    color: #C4B5FD !important;
+[data-testid="stExpander"] summary p,
+[data-testid="stExpander"] summary span {
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+}
+
+[data-testid="stExpander"] summary:hover,
+[data-testid="stExpander"] summary:hover p,
+[data-testid="stExpander"] summary:hover span {
+    color: #D8CCFF !important;
     background: rgba(85,69,217,0.12) !important;
+}
+
+[data-testid="stExpander"] summary svg {
+    color: #B9A9FF !important;
+    fill: #B9A9FF !important;
 }
 
 [data-testid="stDataFrame"] {
