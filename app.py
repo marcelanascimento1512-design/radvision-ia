@@ -12,7 +12,7 @@ import torch
 import torchxrayvision as xrv
 import matplotlib.pyplot as plt
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from transformers import AutoModel, PreTrainedModel
 
 from reportlab.lib.pagesizes import A4
@@ -36,6 +36,17 @@ st.set_page_config(
 )
 
 torch.set_num_threads(1)
+
+# LIMITES DE SEGURANÇA PARA IMAGENS
+TAMANHO_MAXIMO_MB = 20
+TAMANHO_MAXIMO_BYTES = TAMANHO_MAXIMO_MB * 1024 * 1024
+DIMENSAO_MINIMA = 150
+PIXELS_MAXIMOS = 40_000_000
+
+
+# ==========================================
+# TRADUÇÕES
+# ==========================================
 
 traducoes = {
     "Atelectasis": "Atelectasia",
@@ -61,6 +72,89 @@ traducoes = {
 
 def traduzir_achado(nome):
     return traducoes.get(nome, nome.replace("_", " "))
+
+
+# ==========================================
+# VALIDAÇÃO DA IMAGEM ENVIADA
+# ==========================================
+
+def validar_imagem(arquivo):
+
+    if arquivo is None:
+        return False, "Nenhuma imagem foi enviada."
+
+    if arquivo.size > TAMANHO_MAXIMO_BYTES:
+        return False, (
+            f"O arquivo ultrapassa o limite de "
+            f"{TAMANHO_MAXIMO_MB} MB. "
+            "Envie uma imagem menor."
+        )
+
+    try:
+
+        dados_imagem = arquivo.getvalue()
+
+        # PRIMEIRA VERIFICAÇÃO: FORMATO E INTEGRIDADE
+        with Image.open(BytesIO(dados_imagem)) as imagem:
+
+            formato = imagem.format
+            largura, altura = imagem.size
+
+            imagem.verify()
+
+        if formato not in ["JPEG", "PNG"]:
+            return False, (
+                "Formato de imagem não permitido. "
+                "Envie um arquivo JPG, JPEG ou PNG válido."
+            )
+
+        # VERIFICAÇÃO DAS DIMENSÕES MÍNIMAS
+        if (
+            largura < DIMENSAO_MINIMA
+            or altura < DIMENSAO_MINIMA
+        ):
+            return False, (
+                f"A imagem possui dimensões muito pequenas "
+                f"({largura} × {altura} pixels). "
+                f"O mínimo permitido é "
+                f"{DIMENSAO_MINIMA} × {DIMENSAO_MINIMA} pixels."
+            )
+
+        # VERIFICAÇÃO DO TOTAL DE PIXELS
+        total_pixels = largura * altura
+
+        if total_pixels > PIXELS_MAXIMOS:
+            return False, (
+                "A imagem possui resolução muito elevada. "
+                "Envie uma imagem com até 40 milhões de pixels."
+            )
+
+        # SEGUNDA VERIFICAÇÃO: DECODIFICAÇÃO COMPLETA
+        with Image.open(BytesIO(dados_imagem)) as imagem:
+
+            imagem.load()
+
+        return True, (
+            f"Imagem validada: {largura} × {altura} pixels."
+        )
+
+    except (
+        UnidentifiedImageError,
+        Image.DecompressionBombError,
+        OSError,
+        ValueError
+    ):
+        return False, (
+            "Não foi possível abrir a imagem. "
+            "O arquivo pode estar corrompido ou ser inválido. "
+            "Tente enviar outra imagem JPG ou PNG."
+        )
+
+    except Exception:
+        return False, (
+            "Ocorreu um problema ao verificar a imagem. "
+            "Tente enviar outro arquivo."
+        )
 
 
 # ==========================================
@@ -493,7 +587,7 @@ div[data-testid="stDownloadButton"] > button svg {
     background: rgba(32,38,75,0.65) !important;
 }
 
-/* MENSAGENS DE SUCESSO — PADRÃO AZUL E ROXO */
+/* MENSAGENS DE SUCESSO */
 
 .radvision-success {
     display: flex;
@@ -640,7 +734,7 @@ hr {
     border-color: rgba(130,114,232,0.65) !important;
 }
 
-/* AJUSTES PARA TELAS MENORES */
+/* TELAS MENORES */
 
 @media (max-width: 768px) {
     .block-container {
@@ -1343,24 +1437,44 @@ with coluna_imagem:
     arquivo = st.file_uploader(
         "Clique abaixo para selecionar sua imagem",
         type=["jpg", "jpeg", "png"],
-        help="Formatos aceitos: JPG, JPEG e PNG"
+        help=(
+            "Formatos aceitos: JPG, JPEG e PNG. "
+            "Tamanho máximo: 20 MB."
+        )
     )
+
+    arquivo_valido = False
+    mensagem_validacao = ""
 
     if arquivo is not None:
 
-        imagem_original = Image.open(
-            BytesIO(arquivo.getvalue())
-        ).convert("RGB")
-
-        st.markdown("#### 🔎 Visualização da radiografia")
-
-        st.image(
-            imagem_original,
-            caption="Radiografia enviada",
-            use_container_width=True
+        arquivo_valido, mensagem_validacao = validar_imagem(
+            arquivo
         )
 
-        mostrar_sucesso("Imagem carregada com sucesso.")
+        if arquivo_valido:
+
+            imagem_original = Image.open(
+                BytesIO(arquivo.getvalue())
+            ).convert("RGB")
+
+            st.markdown("#### 🔎 Visualização da radiografia")
+
+            st.image(
+                imagem_original,
+                caption="Radiografia enviada",
+                use_container_width=True
+            )
+
+            mostrar_sucesso(
+                "Imagem validada e carregada com sucesso."
+            )
+
+            st.caption(mensagem_validacao)
+
+        else:
+
+            st.error(mensagem_validacao)
 
     analisar = st.button(
         "🩻 ANALISAR RADIOGRAFIA",
@@ -1378,6 +1492,13 @@ with coluna_resultado:
 
             st.warning(
                 "Envie uma radiografia primeiro."
+            )
+
+        elif not arquivo_valido:
+
+            st.error(
+                "A análise não pode ser iniciada. "
+                "Corrija o problema do arquivo enviado."
             )
 
         else:
