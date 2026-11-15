@@ -484,6 +484,34 @@ div[data-testid="stDownloadButton"] > button svg {
     color: #FFFFFF !important;
 }
 
+/* ==========================================
+   COMPARAÇÃO — TEXTO DOS CAMPOS FECHADOS
+   ========================================== */
+
+.st-key-comparacao_analise_a [data-baseweb="select"] [class*="singleValue"],
+.st-key-comparacao_analise_b [data-baseweb="select"] [class*="singleValue"],
+.st-key-comparacao_analise_a [data-baseweb="select"] [class*="ValueContainer"] div,
+.st-key-comparacao_analise_b [data-baseweb="select"] [class*="ValueContainer"] div {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    opacity: 1 !important;
+}
+
+/* Garante contraste no texto selecionado */
+
+.st-key-comparacao_analise_a [data-baseweb="select"] > div,
+.st-key-comparacao_analise_b [data-baseweb="select"] > div {
+    color: #FFFFFF !important;
+}
+
+/* Ícone de abertura dos campos de comparação */
+
+.st-key-comparacao_analise_a [data-baseweb="select"] svg,
+.st-key-comparacao_analise_b [data-baseweb="select"] svg {
+    color: #C4B5FD !important;
+    fill: #C4B5FD !important;
+}
+
 [data-testid="stSelectbox"] label,
 [data-testid="stMultiSelect"] label,
 [data-testid="stTextInput"] label,
