@@ -662,7 +662,7 @@ def carregar_modelo_incidencia():
         PreTrainedModel.all_tied_weights_keys = {}
 
     modelo_view = AutoModel.from_pretrained(
-        "ianpan/chest-xray-basic",
+        "ianpan/chest-x-ray-basic",
         trust_remote_code=True
     )
 
