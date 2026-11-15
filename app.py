@@ -128,7 +128,7 @@ h2, h3 {
 }
 
 .radvision-header h1 {
-    margin: 7px 0 7px 0;
+    margin: 7px 0;
     font-size: 36px;
     line-height: 1.15;
     color: #FFFFFF;
@@ -151,7 +151,7 @@ h2, h3 {
     color: #C9D4FF;
 }
 
-/* LOGO RADVISION IA */
+/* LOGO */
 
 [data-testid="stImage"] img {
     border-radius: 18px;
@@ -171,7 +171,7 @@ h2, h3 {
         drop-shadow(0 0 30px rgba(139,92,246,0.40));
 }
 
-/* TÍTULOS */
+/* TÍTULOS E SEÇÕES */
 
 .radvision-section {
     color: #D5C9FF;
@@ -195,20 +195,31 @@ h2, h3 {
 [data-testid="stFileUploader"] {
     background: linear-gradient(
         145deg,
-        rgba(43,48,91,0.96),
-        rgba(37,35,78,0.96)
+        rgba(43,48,91,0.98),
+        rgba(37,35,78,0.98)
     ) !important;
-    border: 2px solid #8B78F0 !important;
+    border: 1px solid rgba(167,139,250,0.85) !important;
     border-radius: 18px !important;
-    padding: 18px !important;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    padding: 20px !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.28);
+    transition: all 0.25s ease;
+}
+
+[data-testid="stFileUploader"]:hover {
+    border-color: #C4B5FD !important;
+    box-shadow: 0 0 22px rgba(139,120,240,0.20);
 }
 
 [data-testid="stFileUploader"] section {
-    background: rgba(24,29,62,0.95) !important;
+    background: linear-gradient(
+        145deg,
+        rgba(24,29,62,0.98),
+        rgba(34,35,76,0.98)
+    ) !important;
     border: 2px dashed #A78BFA !important;
     border-radius: 14px !important;
-    padding: 22px 12px !important;
+    padding: 25px 14px !important;
+    transition: all 0.25s ease;
 }
 
 [data-testid="stFileUploader"] section:hover {
@@ -223,7 +234,8 @@ h2, h3 {
     font-size: 15px !important;
 }
 
-[data-testid="stFileUploader"] small {
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInstructions"] {
     color: #D8D1FF !important;
 }
 
@@ -231,64 +243,137 @@ h2, h3 {
     background: linear-gradient(90deg, #5545D9, #8049E8) !important;
     color: #FFFFFF !important;
     border: 1px solid #B9A9FF !important;
-    border-radius: 9px !important;
+    border-radius: 10px !important;
     font-weight: 700 !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-testid="stFileUploader"] button:hover {
+    background: linear-gradient(90deg, #705FEA, #9865F0) !important;
+    border-color: #E0D9FF !important;
 }
 
 [data-testid="stFileUploader"] button p {
     color: #FFFFFF !important;
 }
 
-/* BOTÕES */
+/* BOTÕES PRINCIPAIS */
 
-div.stButton > button {
-    background: linear-gradient(90deg, #5545D9, #8049E8) !important;
+div.stButton > button,
+div[data-testid="stDownloadButton"] > button {
+    background: linear-gradient(100deg, #5545D9, #8049E8) !important;
     color: #FFFFFF !important;
     border: 1px solid #A78BFA !important;
-    border-radius: 11px !important;
+    border-radius: 12px !important;
+    font-family: 'Inter', sans-serif !important;
     font-weight: 800 !important;
     padding: 13px 20px !important;
-    width: 100%;
-    min-height: 48px;
-    transition: 0.2s ease;
-}
-
-div.stButton > button p {
-    color: #FFFFFF !important;
-}
-
-div.stButton > button:hover {
-    background: linear-gradient(90deg, #705FEA, #9865F0) !important;
-    border-color: #D0BCFF !important;
-    box-shadow: 0 0 18px rgba(139,120,240,0.35);
-}
-
-div[data-testid="stDownloadButton"] > button {
-    background: linear-gradient(90deg, #5545D9, #8049E8) !important;
-    color: #FFFFFF !important;
-    border: 1px solid #A78BFA !important;
-    border-radius: 10px !important;
-    font-weight: 700 !important;
     width: 100% !important;
-    min-height: 48px !important;
-    opacity: 1 !important;
+    min-height: 49px !important;
+    box-shadow: 0 5px 14px rgba(65,49,160,0.22);
+    transition: all 0.22s ease !important;
 }
 
+div.stButton > button p,
 div[data-testid="stDownloadButton"] > button p,
-div[data-testid="stDownloadButton"] > button span,
+div[data-testid="stDownloadButton"] > button span {
+    color: #FFFFFF !important;
+}
+
+div.stButton > button:hover,
+div[data-testid="stDownloadButton"] > button:hover {
+    background: linear-gradient(100deg, #705FEA, #9865F0) !important;
+    border-color: #D0BCFF !important;
+    box-shadow: 0 0 20px rgba(139,120,240,0.38);
+    transform: translateY(-1px);
+}
+
+div.stButton > button:active,
+div[data-testid="stDownloadButton"] > button:active {
+    transform: translateY(0);
+}
+
+div.stButton > button:focus,
+div[data-testid="stDownloadButton"] > button:focus {
+    box-shadow: 0 0 0 3px rgba(167,139,250,0.30) !important;
+    outline: none !important;
+}
+
 div[data-testid="stDownloadButton"] > button svg {
     color: #FFFFFF !important;
     fill: #FFFFFF !important;
 }
 
+/* CAMPOS DE TEXTO E SELEÇÃO */
+
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-testid="stDateInput"] input,
+[data-testid="stTimeInput"] input,
+[data-testid="stTextArea"] textarea {
+    background: #20264B !important;
+    color: #FFFFFF !important;
+    border: 1px solid #7565D9 !important;
+    border-radius: 10px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+[data-testid="stTextInput"] input:focus,
+[data-testid="stNumberInput"] input:focus,
+[data-testid="stDateInput"] input:focus,
+[data-testid="stTimeInput"] input:focus,
+[data-testid="stTextArea"] textarea:focus {
+    border-color: #B9A9FF !important;
+    box-shadow: 0 0 0 2px rgba(167,139,250,0.20) !important;
+}
+
+[data-testid="stSelectbox"] > div > div,
+[data-testid="stMultiSelect"] > div > div {
+    background: #20264B !important;
+    border: 1px solid #7565D9 !important;
+    border-radius: 10px !important;
+    color: #FFFFFF !important;
+}
+
+[data-testid="stSelectbox"] label,
+[data-testid="stMultiSelect"] label,
+[data-testid="stTextInput"] label,
+[data-testid="stNumberInput"] label,
+[data-testid="stDateInput"] label,
+[data-testid="stTimeInput"] label,
+[data-testid="stTextArea"] label {
+    color: #E0D9FF !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stSelectbox"] svg,
+[data-testid="stMultiSelect"] svg {
+    color: #C4B5FD !important;
+}
+
+[data-baseweb="popover"],
+[data-baseweb="menu"] {
+    background: #25294F !important;
+    border: 1px solid #8272E8 !important;
+    border-radius: 10px !important;
+}
+
+[data-baseweb="menu"] li {
+    color: #FFFFFF !important;
+}
+
+[data-baseweb="menu"] li:hover {
+    background: #403777 !important;
+}
+
 /* INDICADORES NATIVOS */
 
 [data-testid="stMetric"] {
-    background: #25294F !important;
+    background: linear-gradient(145deg, #25294F, #29234F) !important;
     border: 1px solid #8272E8 !important;
     border-radius: 14px !important;
-    padding: 22px 18px !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    padding: 20px 18px !important;
+    box-shadow: 0 5px 16px rgba(0,0,0,0.24);
 }
 
 [data-testid="stMetricLabel"],
@@ -296,7 +381,7 @@ div[data-testid="stDownloadButton"] > button svg {
 [data-testid="stMetricLabel"] div,
 [data-testid="stMetricLabel"] span {
     color: #E0D9FF !important;
-    font-size: 16px !important;
+    font-size: 14px !important;
     font-weight: 700 !important;
 }
 
@@ -305,21 +390,28 @@ div[data-testid="stDownloadButton"] > button svg {
 [data-testid="stMetricValue"] p,
 [data-testid="stMetricValue"] span {
     color: #FFFFFF !important;
-    font-size: 36px !important;
+    font-size: 32px !important;
     font-weight: 800 !important;
     line-height: 1.3 !important;
 }
 
-/* CARTÕES COMPACTOS DO PAINEL DE RESULTADOS */
+/* CARTÕES DE RESULTADOS */
 
 .resultado-card {
     background: linear-gradient(145deg, #25294F, #29234F);
     border: 1px solid #8272E8;
-    border-radius: 12px;
-    padding: 13px 12px;
-    min-height: 112px;
-    box-shadow: 0 4px 13px rgba(0,0,0,0.20);
+    border-radius: 13px;
+    padding: 14px 13px;
+    min-height: 116px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.22);
     box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.resultado-card:hover {
+    border-color: #B9A9FF;
+    box-shadow: 0 0 18px rgba(139,120,240,0.18);
+    transform: translateY(-2px);
 }
 
 .resultado-label {
@@ -350,31 +442,51 @@ div[data-testid="stDownloadButton"] > button svg {
     line-height: 1.4;
 }
 
-/* CAIXAS */
+/* CAIXAS E CONTAINERS */
 
 [data-testid="stVerticalBlockBorderWrapper"] {
-    border: 1px solid rgba(167,139,250,0.28) !important;
+    border: 1px solid rgba(167,139,250,0.32) !important;
     border-radius: 16px !important;
     background: rgba(25,30,66,0.48) !important;
 }
 
-[data-testid="stSelectbox"] > div > div {
-    background: #20264B !important;
-    border: 1px solid #7565D9 !important;
-    border-radius: 10px !important;
-    color: #FFFFFF !important;
-}
-
-[data-testid="stDataFrame"] {
-    border: 1px solid rgba(130,114,232,0.45);
-    border-radius: 12px;
+[data-testid="stExpander"] {
+    border: 1px solid rgba(130,114,232,0.48) !important;
+    border-radius: 13px !important;
+    background: rgba(32,38,75,0.55) !important;
     overflow: hidden;
 }
 
-[data-testid="stExpander"] {
-    border: 1px solid rgba(130,114,232,0.42) !important;
+[data-testid="stExpander"] summary {
+    color: #E9E5FF !important;
+    font-weight: 700 !important;
+}
+
+[data-testid="stExpander"] summary:hover {
+    color: #C4B5FD !important;
+    background: rgba(85,69,217,0.12) !important;
+}
+
+/* TABELAS */
+
+[data-testid="stDataFrame"] {
+    border: 1px solid rgba(130,114,232,0.55) !important;
+    border-radius: 13px !important;
+    overflow: hidden;
+    background: rgba(32,38,75,0.65) !important;
+}
+
+/* AVISOS NATIVOS */
+
+[data-testid="stAlert"] {
     border-radius: 12px !important;
-    background: rgba(32,38,75,0.45);
+    border: 1px solid rgba(167,139,250,0.45) !important;
+    background: rgba(38,40,82,0.88) !important;
+    color: #F3EFFF !important;
+}
+
+[data-testid="stAlert"] p {
+    color: #F3EFFF !important;
 }
 
 /* RELATÓRIO */
@@ -433,29 +545,83 @@ div[data-testid="stDownloadButton"] > button svg {
     margin-top: 20px;
 }
 
-/* AVISOS */
+/* AVISOS PERSONALIZADOS */
 
 .radvision-note {
-    background: rgba(48,44,91,0.72);
-    border: 1px solid rgba(167,139,250,0.35);
-    border-radius: 12px;
-    padding: 14px 16px;
+    background: linear-gradient(
+        110deg,
+        rgba(48,44,91,0.82),
+        rgba(43,39,82,0.75)
+    );
+    border: 1px solid rgba(167,139,250,0.42);
+    border-radius: 13px;
+    padding: 15px 17px;
     color: #E9E5FF;
     line-height: 1.65;
+    box-shadow: 0 4px 13px rgba(0,0,0,0.15);
 }
 
 /* GRÁFICOS */
 
 .chart-shell {
-    background: rgba(25,30,66,0.55);
-    border: 1px solid rgba(167,139,250,0.35);
+    background: rgba(25,30,66,0.60);
+    border: 1px solid rgba(167,139,250,0.40);
     border-radius: 16px;
     padding: 12px;
     margin: 8px 0 18px 0;
+    box-shadow: 0 5px 16px rgba(0,0,0,0.16);
 }
 
+/* CHECKBOX E RADIO */
+
+[data-testid="stCheckbox"] label,
+[data-testid="stRadio"] label {
+    color: #E9E5FF !important;
+}
+
+[data-testid="stCheckbox"] p,
+[data-testid="stRadio"] p {
+    color: #E9E5FF !important;
+}
+
+/* TEXTOS AUXILIARES */
+
+[data-testid="stCaptionContainer"] p,
+.stMarkdown small {
+    color: #C9C5E8 !important;
+}
+
+/* DIVISORES */
+
 hr {
-    border-color: #5545D9;
+    border-color: rgba(130,114,232,0.65) !important;
+}
+
+/* AJUSTES PARA TELAS MENORES */
+
+@media (max-width: 768px) {
+    .block-container {
+        padding-top: 1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .radvision-header {
+        padding: 20px;
+        min-height: auto;
+    }
+
+    .radvision-header h1 {
+        font-size: 28px;
+    }
+
+    .resultado-card {
+        min-height: 105px;
+    }
+
+    .resultado-valor {
+        font-size: 21px;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -496,7 +662,7 @@ def carregar_modelo_incidencia():
         PreTrainedModel.all_tied_weights_keys = {}
 
     modelo_view = AutoModel.from_pretrained(
-        "ianpan/chest-x-ray-basic",
+        "ianpan/chest-xray-basic",
         trust_remote_code=True
     )
 
