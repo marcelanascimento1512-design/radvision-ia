@@ -211,11 +211,13 @@ def voltar_ao_topo():
                 });
             }
 
-            subirPagina();
+            requestAnimationFrame(() => {
+                subirPagina();
 
-            setTimeout(subirPagina, 150);
-            setTimeout(subirPagina, 500);
-            setTimeout(subirPagina, 1000);
+                requestAnimationFrame(() => {
+                    subirPagina();
+                });
+            });
 
         })();
         </script>
