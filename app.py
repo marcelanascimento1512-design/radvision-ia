@@ -7,6 +7,7 @@ from io import BytesIO
 from html import escape
 
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
 import torch
 import torchxrayvision as xrv
@@ -37,7 +38,6 @@ st.set_page_config(
 
 torch.set_num_threads(1)
 
-# LIMITES DE SEGURANÇA PARA IMAGENS
 TAMANHO_MAXIMO_MB = 20
 TAMANHO_MAXIMO_BYTES = TAMANHO_MAXIMO_MB * 1024 * 1024
 DIMENSAO_MINIMA = 150
@@ -75,7 +75,7 @@ def traduzir_achado(nome):
 
 
 # ==========================================
-# VALIDAÇÃO DA IMAGEM ENVIADA
+# VALIDAÇÃO DA IMAGEM
 # ==========================================
 
 def validar_imagem(arquivo):
@@ -91,15 +91,11 @@ def validar_imagem(arquivo):
         )
 
     try:
-
         dados_imagem = arquivo.getvalue()
 
-        # PRIMEIRA VERIFICAÇÃO: FORMATO E INTEGRIDADE
         with Image.open(BytesIO(dados_imagem)) as imagem:
-
             formato = imagem.format
             largura, altura = imagem.size
-
             imagem.verify()
 
         if formato not in ["JPEG", "PNG"]:
@@ -108,7 +104,6 @@ def validar_imagem(arquivo):
                 "Envie um arquivo JPG, JPEG ou PNG válido."
             )
 
-        # VERIFICAÇÃO DAS DIMENSÕES MÍNIMAS
         if (
             largura < DIMENSAO_MINIMA
             or altura < DIMENSAO_MINIMA
@@ -120,7 +115,6 @@ def validar_imagem(arquivo):
                 f"{DIMENSAO_MINIMA} × {DIMENSAO_MINIMA} pixels."
             )
 
-        # VERIFICAÇÃO DO TOTAL DE PIXELS
         total_pixels = largura * altura
 
         if total_pixels > PIXELS_MAXIMOS:
@@ -129,9 +123,7 @@ def validar_imagem(arquivo):
                 "Envie uma imagem com até 40 milhões de pixels."
             )
 
-        # SEGUNDA VERIFICAÇÃO: DECODIFICAÇÃO COMPLETA
         with Image.open(BytesIO(dados_imagem)) as imagem:
-
             imagem.load()
 
         return True, (
@@ -213,8 +205,6 @@ h2, h3 {
     color: #C4B5FD;
 }
 
-/* CABEÇALHO */
-
 .radvision-header {
     background: linear-gradient(
         110deg,
@@ -262,8 +252,6 @@ h2, h3 {
     color: #C9D4FF;
 }
 
-/* LOGO */
-
 [data-testid="stImage"] img {
     border-radius: 18px;
     filter:
@@ -282,8 +270,6 @@ h2, h3 {
         drop-shadow(0 0 30px rgba(139,92,246,0.40));
 }
 
-/* TÍTULOS E SEÇÕES */
-
 .radvision-section {
     color: #D5C9FF;
     font-size: 12px;
@@ -300,8 +286,6 @@ h2, h3 {
     margin-top: 12px;
     margin-bottom: 12px;
 }
-
-/* ENVIO DE IMAGEM */
 
 [data-testid="stFileUploader"] {
     background: linear-gradient(
@@ -368,8 +352,6 @@ h2, h3 {
     color: #FFFFFF !important;
 }
 
-/* BOTÕES PRINCIPAIS */
-
 div.stButton > button,
 div[data-testid="stDownloadButton"] > button {
     background: linear-gradient(100deg, #5545D9, #8049E8) !important;
@@ -414,8 +396,6 @@ div[data-testid="stDownloadButton"] > button svg {
     color: #FFFFFF !important;
     fill: #FFFFFF !important;
 }
-
-/* CAMPOS DE TEXTO E SELEÇÃO */
 
 [data-testid="stTextInput"] input,
 [data-testid="stNumberInput"] input,
@@ -477,8 +457,6 @@ div[data-testid="stDownloadButton"] > button svg {
     background: #403777 !important;
 }
 
-/* INDICADORES NATIVOS */
-
 [data-testid="stMetric"] {
     background: linear-gradient(145deg, #25294F, #29234F) !important;
     border: 1px solid #8272E8 !important;
@@ -505,8 +483,6 @@ div[data-testid="stDownloadButton"] > button svg {
     font-weight: 800 !important;
     line-height: 1.3 !important;
 }
-
-/* CARTÕES DE RESULTADOS */
 
 .resultado-card {
     background: linear-gradient(145deg, #25294F, #29234F);
@@ -553,8 +529,6 @@ div[data-testid="stDownloadButton"] > button svg {
     line-height: 1.4;
 }
 
-/* CAIXAS E CONTAINERS */
-
 [data-testid="stVerticalBlockBorderWrapper"] {
     border: 1px solid rgba(167,139,250,0.32) !important;
     border-radius: 16px !important;
@@ -578,16 +552,12 @@ div[data-testid="stDownloadButton"] > button svg {
     background: rgba(85,69,217,0.12) !important;
 }
 
-/* TABELAS */
-
 [data-testid="stDataFrame"] {
     border: 1px solid rgba(130,114,232,0.55) !important;
     border-radius: 13px !important;
     overflow: hidden;
     background: rgba(32,38,75,0.65) !important;
 }
-
-/* MENSAGENS DE SUCESSO */
 
 .radvision-success {
     display: flex;
@@ -625,8 +595,6 @@ div[data-testid="stDownloadButton"] > button svg {
     font-size: 17px;
     font-weight: 900;
 }
-
-/* RELATÓRIO */
 
 .relatorio-radvision {
     background: linear-gradient(145deg, #25294F, #29234F);
@@ -682,8 +650,6 @@ div[data-testid="stDownloadButton"] > button svg {
     margin-top: 20px;
 }
 
-/* AVISOS PERSONALIZADOS */
-
 .radvision-note {
     background: linear-gradient(
         110deg,
@@ -698,8 +664,6 @@ div[data-testid="stDownloadButton"] > button svg {
     box-shadow: 0 4px 13px rgba(0,0,0,0.15);
 }
 
-/* GRÁFICOS */
-
 .chart-shell {
     background: rgba(25,30,66,0.60);
     border: 1px solid rgba(167,139,250,0.40);
@@ -708,8 +672,6 @@ div[data-testid="stDownloadButton"] > button svg {
     margin: 8px 0 18px 0;
     box-shadow: 0 5px 16px rgba(0,0,0,0.16);
 }
-
-/* CHECKBOX E RADIO */
 
 [data-testid="stCheckbox"] label,
 [data-testid="stRadio"] label {
@@ -721,20 +683,14 @@ div[data-testid="stDownloadButton"] > button svg {
     color: #E9E5FF !important;
 }
 
-/* TEXTOS AUXILIARES */
-
 [data-testid="stCaptionContainer"] p,
 .stMarkdown small {
     color: #C9C5E8 !important;
 }
 
-/* DIVISORES */
-
 hr {
     border-color: rgba(130,114,232,0.65) !important;
 }
-
-/* TELAS MENORES */
 
 @media (max-width: 768px) {
     .block-container {
@@ -1224,8 +1180,6 @@ def analisar_radiografia(arquivo):
         for nome, valor in analise
     ]
 
-    # GRÁFICO PRINCIPAL
-
     fig, ax = plt.subplots(figsize=(12, 7))
 
     nomes = [
@@ -1276,9 +1230,7 @@ def analisar_radiografia(arquivo):
     ax.set_ylabel("")
 
     configurar_grafico(fig, ax)
-
     ax.grid(axis="y", visible=False)
-
     fig.tight_layout(pad=2)
 
     # MAPA DE SENSIBILIDADE
@@ -1329,7 +1281,6 @@ def analisar_radiografia(arquivo):
     )
 
     ax_mapa.axis("off")
-
     fig_mapa.tight_layout(pad=1.5)
 
     relatorio = construir_relatorio(
@@ -1377,12 +1328,10 @@ coluna_logo, coluna_titulo = st.columns(
 with coluna_logo:
 
     if os.path.exists("IMG_5787.jpeg"):
-
         st.image(
             "IMG_5787.jpeg",
             width=280
         )
-
     else:
         st.markdown("## 🩻")
 
@@ -1473,13 +1422,69 @@ with coluna_imagem:
             st.caption(mensagem_validacao)
 
         else:
-
             st.error(mensagem_validacao)
 
     analisar = st.button(
         "🩻 ANALISAR RADIOGRAFIA",
         use_container_width=True
     )
+
+    # ======================================
+    # NOVO: VOLTAR AO TOPO AO CLICAR
+    # ======================================
+
+    if analisar:
+
+        components.html(
+            """
+            <script>
+            function voltarAoTopo() {
+                try {
+                    window.parent.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+
+                    const areaPrincipal =
+                        window.parent.document.querySelector(
+                            "section.main"
+                        );
+
+                    if (areaPrincipal) {
+                        areaPrincipal.scrollTo({
+                            top: 0,
+                            behavior: "smooth"
+                        });
+                    }
+
+                    const container =
+                        window.parent.document.querySelector(
+                            '[data-testid="stAppViewContainer"]'
+                        );
+
+                    if (container) {
+                        container.scrollTo({
+                            top: 0,
+                            behavior: "smooth"
+                        });
+                    }
+                } catch (erro) {
+                    console.log(
+                        "Não foi possível controlar a rolagem:",
+                        erro
+                    );
+                }
+            }
+
+            voltarAoTopo();
+
+            setTimeout(voltarAoTopo, 150);
+            setTimeout(voltarAoTopo, 500);
+            </script>
+            """,
+            height=0,
+            scrolling=False
+        )
 
 
 with coluna_resultado:
@@ -1535,8 +1540,6 @@ with coluna_resultado:
                 mostrar_sucesso(
                     "Análise computacional concluída!"
                 )
-
-                # PAINEL DE RESULTADOS
 
                 maior_achado = tabela[0]["Achado identificado"]
                 maior_escore = tabela[0]["Escore do modelo"]
@@ -1664,13 +1667,11 @@ with coluna_resultado:
                 st.markdown("### Relatório experimental estruturado")
 
                 secoes = relatorio.split("\n\n")
-
                 html_secoes = ""
 
                 for secao in secoes:
 
                     linhas = secao.split("\n")
-
                     titulo_secao = linhas[0]
                     conteudo = linhas[1:]
 
@@ -1920,7 +1921,6 @@ if len(st.session_state.historico_analises) >= 2:
 
     ax_comp.set_yticks(posicoes)
     ax_comp.set_yticklabels(nomes_grafico)
-
     ax_comp.set_xlabel("Escore do modelo")
 
     ax_comp.set_title(
@@ -1931,7 +1931,6 @@ if len(st.session_state.historico_analises) >= 2:
     )
 
     configurar_grafico(fig_comp, ax_comp)
-
     ax_comp.grid(axis="y", visible=False)
 
     ax_comp.legend(
