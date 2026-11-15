@@ -166,67 +166,6 @@ def mostrar_sucesso(mensagem):
 
 
 # ==========================================
-# ROLAGEM AUTOMÁTICA PARA O TOPO
-# ==========================================
-
-def voltar_ao_topo():
-
-    st.html(
-        """
-        <script>
-        (() => {
-
-            function subirPagina() {
-
-                window.scrollTo({
-                    top: 0,
-                    left: 0,
-                    behavior: "instant"
-                });
-
-                document.documentElement.scrollTop = 0;
-                document.body.scrollTop = 0;
-
-                const seletores = [
-                    '[data-testid="stAppViewContainer"]',
-                    '[data-testid="stMain"]',
-                    'section.main',
-                    'main'
-                ];
-
-                seletores.forEach((seletor) => {
-
-                    const elemento = document.querySelector(seletor);
-
-                    if (elemento) {
-                        elemento.scrollTo({
-                            top: 0,
-                            left: 0,
-                            behavior: "instant"
-                        });
-
-                        elemento.scrollTop = 0;
-                    }
-
-                });
-            }
-
-            requestAnimationFrame(() => {
-                subirPagina();
-
-                requestAnimationFrame(() => {
-                    subirPagina();
-                });
-            });
-
-        })();
-        </script>
-        """,
-        unsafe_allow_javascript=True
-    )
-
-
-# ==========================================
 # IDENTIDADE VISUAL
 # ==========================================
 
@@ -1765,9 +1704,6 @@ with coluna_resultado:
                     mime="application/pdf",
                     use_container_width=True
                 )
-
-                # VOLTAR AO TOPO DEPOIS DE EXIBIR OS RESULTADOS
-                voltar_ao_topo()
 
             except Exception as erro:
 
