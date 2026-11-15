@@ -493,15 +493,15 @@ div[data-testid="stDownloadButton"] > button svg {
     background: rgba(32,38,75,0.65) !important;
 }
 
-/* MENSAGENS DE SUCESSO PERSONALIZADAS */
+/* MENSAGENS DE SUCESSO — PADRÃO AZUL E ROXO */
 
 .radvision-success {
     display: flex;
     align-items: center;
     gap: 12px;
-    background: #123D38 !important;
-    border: 1px solid #36BFA0 !important;
-    border-left: 5px solid #36BFA0 !important;
+    background: linear-gradient(110deg, #302C5B, #29234F) !important;
+    border: 1px solid #8272E8 !important;
+    border-left: 5px solid #A78BFA !important;
     border-radius: 12px;
     padding: 15px 18px;
     margin: 10px 0 16px 0;
@@ -526,8 +526,8 @@ div[data-testid="stDownloadButton"] > button svg {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #36BFA0;
-    color: #123D38 !important;
+    background: #A78BFA;
+    color: #171536 !important;
     font-size: 17px;
     font-weight: 900;
 }
