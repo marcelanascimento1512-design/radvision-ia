@@ -476,17 +476,34 @@ div[data-testid="stDownloadButton"] > button svg {
     background: rgba(32,38,75,0.65) !important;
 }
 
-/* AVISOS NATIVOS */
+/* AVISOS NATIVOS — MELHOR CONTRASTE */
 
 [data-testid="stAlert"] {
     border-radius: 12px !important;
-    border: 1px solid rgba(167,139,250,0.45) !important;
-    background: rgba(38,40,82,0.88) !important;
-    color: #F3EFFF !important;
+    border: 1px solid rgba(167,139,250,0.55) !important;
+    background: #20264B !important;
+    color: #FFFFFF !important;
 }
 
-[data-testid="stAlert"] p {
-    color: #F3EFFF !important;
+[data-testid="stAlert"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stAlert"] p,
+[data-testid="stAlert"] span {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+}
+
+/* MENSAGENS DE SUCESSO */
+
+[data-testid="stAlert"][kind="success"] {
+    background: #123D38 !important;
+    border: 1px solid #36BFA0 !important;
+}
+
+[data-testid="stAlert"][kind="success"] p,
+[data-testid="stAlert"][kind="success"] span {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
 }
 
 /* RELATÓRIO */
@@ -662,7 +679,7 @@ def carregar_modelo_incidencia():
         PreTrainedModel.all_tied_weights_keys = {}
 
     modelo_view = AutoModel.from_pretrained(
-        "ianpan/chest-x-ray-basic",
+        "ianpan/chest-xray-basic",
         trust_remote_code=True
     )
 
