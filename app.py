@@ -7,7 +7,6 @@ from io import BytesIO
 from html import escape
 
 import streamlit as st
-import streamlit.components.v1 as components
 import numpy as np
 import torch
 import torchxrayvision as xrv
@@ -163,6 +162,65 @@ def mostrar_sucesso(mensagem):
         </div>
         """,
         unsafe_allow_html=True
+    )
+
+
+# ==========================================
+# ROLAGEM AUTOMÁTICA PARA O TOPO
+# ==========================================
+
+def voltar_ao_topo():
+
+    st.html(
+        """
+        <script>
+        (() => {
+
+            function subirPagina() {
+
+                window.scrollTo({
+                    top: 0,
+                    left: 0,
+                    behavior: "instant"
+                });
+
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+
+                const seletores = [
+                    '[data-testid="stAppViewContainer"]',
+                    '[data-testid="stMain"]',
+                    'section.main',
+                    'main'
+                ];
+
+                seletores.forEach((seletor) => {
+
+                    const elemento = document.querySelector(seletor);
+
+                    if (elemento) {
+                        elemento.scrollTo({
+                            top: 0,
+                            left: 0,
+                            behavior: "instant"
+                        });
+
+                        elemento.scrollTop = 0;
+                    }
+
+                });
+            }
+
+            subirPagina();
+
+            setTimeout(subirPagina, 150);
+            setTimeout(subirPagina, 500);
+            setTimeout(subirPagina, 1000);
+
+        })();
+        </script>
+        """,
+        unsafe_allow_javascript=True
     )
 
 
@@ -1429,63 +1487,6 @@ with coluna_imagem:
         use_container_width=True
     )
 
-    # ======================================
-    # NOVO: VOLTAR AO TOPO AO CLICAR
-    # ======================================
-
-    if analisar:
-
-        components.html(
-            """
-            <script>
-            function voltarAoTopo() {
-                try {
-                    window.parent.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
-
-                    const areaPrincipal =
-                        window.parent.document.querySelector(
-                            "section.main"
-                        );
-
-                    if (areaPrincipal) {
-                        areaPrincipal.scrollTo({
-                            top: 0,
-                            behavior: "smooth"
-                        });
-                    }
-
-                    const container =
-                        window.parent.document.querySelector(
-                            '[data-testid="stAppViewContainer"]'
-                        );
-
-                    if (container) {
-                        container.scrollTo({
-                            top: 0,
-                            behavior: "smooth"
-                        });
-                    }
-                } catch (erro) {
-                    console.log(
-                        "Não foi possível controlar a rolagem:",
-                        erro
-                    );
-                }
-            }
-
-            voltarAoTopo();
-
-            setTimeout(voltarAoTopo, 150);
-            setTimeout(voltarAoTopo, 500);
-            </script>
-            """,
-            height=0,
-            scrolling=False
-        )
-
 
 with coluna_resultado:
 
@@ -1718,6 +1719,9 @@ with coluna_resultado:
                     mime="application/pdf",
                     use_container_width=True
                 )
+
+                # VOLTAR AO TOPO DEPOIS DE EXIBIR OS RESULTADOS
+                voltar_ao_topo()
 
             except Exception as erro:
 
