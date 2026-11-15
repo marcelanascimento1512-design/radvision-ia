@@ -64,6 +64,23 @@ def traduzir_achado(nome):
 
 
 # ==========================================
+# MENSAGENS PERSONALIZADAS
+# ==========================================
+
+def mostrar_sucesso(mensagem):
+
+    st.markdown(
+        f"""
+        <div class="radvision-success">
+            <span class="success-icon">✓</span>
+            <span>{escape(mensagem)}</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+# ==========================================
 # IDENTIDADE VISUAL
 # ==========================================
 
@@ -476,34 +493,43 @@ div[data-testid="stDownloadButton"] > button svg {
     background: rgba(32,38,75,0.65) !important;
 }
 
-/* AVISOS NATIVOS — MELHOR CONTRASTE */
+/* MENSAGENS DE SUCESSO PERSONALIZADAS */
 
-[data-testid="stAlert"] {
-    border-radius: 12px !important;
-    border: 1px solid rgba(167,139,250,0.55) !important;
-    background: #20264B !important;
+.radvision-success {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #123D38 !important;
+    border: 1px solid #36BFA0 !important;
+    border-left: 5px solid #36BFA0 !important;
+    border-radius: 12px;
+    padding: 15px 18px;
+    margin: 10px 0 16px 0;
     color: #FFFFFF !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+    box-shadow: 0 5px 16px rgba(0,0,0,0.20);
 }
 
-[data-testid="stAlert"] [data-testid="stMarkdownContainer"] p,
-[data-testid="stAlert"] p,
-[data-testid="stAlert"] span {
+.radvision-success span {
     color: #FFFFFF !important;
-    font-weight: 600 !important;
     opacity: 1 !important;
 }
 
-/* MENSAGENS DE SUCESSO */
-
-[data-testid="stAlert"][kind="success"] {
-    background: #123D38 !important;
-    border: 1px solid #36BFA0 !important;
-}
-
-[data-testid="stAlert"][kind="success"] p,
-[data-testid="stAlert"][kind="success"] span {
-    color: #FFFFFF !important;
-    font-weight: 700 !important;
+.radvision-success .success-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #36BFA0;
+    color: #123D38 !important;
+    font-size: 17px;
+    font-weight: 900;
 }
 
 /* RELATÓRIO */
@@ -679,7 +705,7 @@ def carregar_modelo_incidencia():
         PreTrainedModel.all_tied_weights_keys = {}
 
     modelo_view = AutoModel.from_pretrained(
-        "ianpan/chest-xray-basic",
+        "ianpan/chest-x-ray-basic",
         trust_remote_code=True
     )
 
@@ -1334,7 +1360,7 @@ with coluna_imagem:
             use_container_width=True
         )
 
-        st.success("Imagem carregada com sucesso.")
+        mostrar_sucesso("Imagem carregada com sucesso.")
 
     analisar = st.button(
         "🩻 ANALISAR RADIOGRAFIA",
@@ -1385,7 +1411,7 @@ with coluna_resultado:
 
                 st.session_state.historico_analises.insert(0, registro)
 
-                st.success(
+                mostrar_sucesso(
                     "Análise computacional concluída!"
                 )
 
