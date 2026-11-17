@@ -426,14 +426,12 @@ div[data-testid="stDownloadButton"] > button svg {
 }
 
 /* ==========================================
-   COMPARAÇÃO — TEXTO DOS CAMPOS FECHADOS
+   COMPARAÇÃO — TEXTO DOS CAMPOS
    ========================================== */
 
-.st-key-comparacao_analise_a [data-baseweb="select"],
-.st-key-comparacao_analise_b [data-baseweb="select"] {
-    color: #FFFFFF !important;
-}
+/* Texto selecionado nos dois campos */
 
+[data-testid="stSelectbox"] [data-baseweb="select"] *,
 .st-key-comparacao_analise_a [data-baseweb="select"] *,
 .st-key-comparacao_analise_b [data-baseweb="select"] * {
     color: #FFFFFF !important;
@@ -441,40 +439,32 @@ div[data-testid="stDownloadButton"] > button svg {
     opacity: 1 !important;
 }
 
-.st-key-comparacao_analise_a [data-baseweb="select"] input,
-.st-key-comparacao_analise_b [data-baseweb="select"] input {
+/* Valor selecionado */
+
+[data-testid="stSelectbox"] [data-baseweb="select"] [class*="singleValue"],
+[data-testid="stSelectbox"] [data-baseweb="select"] [class*="ValueContainer"],
+.st-key-comparacao_analise_a [data-baseweb="select"] [class*="singleValue"],
+.st-key-comparacao_analise_b [data-baseweb="select"] [class*="singleValue"] {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
+    opacity: 1 !important;
+    font-weight: 700 !important;
 }
+
+/* Fundo dos campos */
+
+.st-key-comparacao_analise_a [data-baseweb="select"] > div,
+.st-key-comparacao_analise_b [data-baseweb="select"] > div {
+    background-color: #20264B !important;
+    color: #FFFFFF !important;
+}
+
+/* Ícone de abertura */
 
 .st-key-comparacao_analise_a [data-baseweb="select"] svg,
 .st-key-comparacao_analise_b [data-baseweb="select"] svg {
-    color: #D8CCFF !important;
-    fill: #D8CCFF !important;
-}
-
-/* ==========================================
-   TEXTO DO QUADRO DE COMPARAÇÃO
-   ========================================== */
-
-.radvision-note {
-    background: linear-gradient(
-        110deg,
-        rgba(48,44,91,0.82),
-        rgba(43,39,82,0.75)
-    );
-    border: 1px solid rgba(167,139,250,0.42);
-    border-radius: 13px;
-    padding: 15px 17px;
-    color: #FFFFFF !important;
-    line-height: 1.65;
-    box-shadow: 0 4px 13px rgba(0,0,0,0.15);
-}
-
-.radvision-note,
-.radvision-note * {
-    color: #FFFFFF !important;
-    opacity: 1 !important;
+    color: #C4B5FD !important;
+    fill: #C4B5FD !important;
 }
 
 [data-testid="stSelectbox"] label,
@@ -593,7 +583,7 @@ div[data-testid="stDownloadButton"] > button svg {
     overflow: hidden;
 }
 
-/* HISTÓRICO — MAIOR CONTRASTE PARA DATA E NOME DA IMAGEM */
+/* HISTÓRICO — MAIOR CONTRASTE */
 
 [data-testid="stExpander"] summary {
     color: #FFFFFF !important;
@@ -676,18 +666,8 @@ div[data-testid="stDownloadButton"] > button svg {
     box-shadow: 0 7px 22px rgba(0,0,0,0.24);
 }
 
-/* ==========================================
-   RELATÓRIO EXPERIMENTAL — TEXTO MAIS VISÍVEL
-   ========================================== */
-
-.relatorio-radvision,
-.relatorio-radvision * {
-    color: #FFFFFF !important;
-    opacity: 1 !important;
-}
-
 .relatorio-radvision .marca {
-    color: #D8CCFF !important;
+    color: #C4B5FD !important;
     font-size: 25px;
     font-weight: 800;
     letter-spacing: 0.5px;
@@ -716,6 +696,11 @@ div[data-testid="stDownloadButton"] > button svg {
     margin-bottom: 5px;
 }
 
+.relatorio-radvision,
+.relatorio-radvision * {
+    opacity: 1 !important;
+}
+
 .relatorio-radvision .aviso {
     background: #34345D;
     border: 1px solid rgba(192,132,252,0.45);
@@ -725,6 +710,20 @@ div[data-testid="stDownloadButton"] > button svg {
     font-size: 13px;
     line-height: 1.7;
     margin-top: 20px;
+}
+
+.radvision-note {
+    background: linear-gradient(
+        110deg,
+        rgba(48,44,91,0.82),
+        rgba(43,39,82,0.75)
+    );
+    border: 1px solid rgba(167,139,250,0.42);
+    border-radius: 13px;
+    padding: 15px 17px;
+    color: #E9E5FF;
+    line-height: 1.65;
+    box-shadow: 0 4px 13px rgba(0,0,0,0.15);
 }
 
 .chart-shell {
@@ -1682,7 +1681,9 @@ with coluna_resultado:
                     conteudo = linhas[1:]
 
                     html_secoes += (
-                        '<div class="secao">'
+                        '<div class="secao" '
+                        'style="color:#D8CCFF !important; '
+                        'font-weight:800 !important;">'
                         + escape(titulo_secao)
                         + '</div>'
                     )
@@ -1691,7 +1692,9 @@ with coluna_resultado:
 
                         if linha.strip():
                             html_secoes += (
-                                '<div class="texto">'
+                                '<div class="texto" '
+                                'style="color:#FFFFFF !important; '
+                                'opacity:1 !important;">'
                                 + escape(linha)
                                 + '</div>'
                             )
