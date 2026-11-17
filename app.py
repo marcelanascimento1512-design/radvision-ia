@@ -439,16 +439,27 @@ div[data-testid="stDownloadButton"] > button svg {
     opacity: 1 !important;
 }
 
-/* Valor selecionado */
+/* Reforço de contraste para os valores selecionados */
 
-[data-testid="stSelectbox"] [data-baseweb="select"] [class*="singleValue"],
-[data-testid="stSelectbox"] [data-baseweb="select"] [class*="ValueContainer"],
 .st-key-comparacao_analise_a [data-baseweb="select"] [class*="singleValue"],
-.st-key-comparacao_analise_b [data-baseweb="select"] [class*="singleValue"] {
+.st-key-comparacao_analise_a [data-baseweb="select"] [class*="value"],
+.st-key-comparacao_analise_b [data-baseweb="select"] [class*="singleValue"],
+.st-key-comparacao_analise_b [data-baseweb="select"] [class*="value"] {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
     opacity: 1 !important;
-    font-weight: 700 !important;
+    font-weight: 800 !important;
+}
+
+/* Reforço de cor para todos os textos internos dos campos */
+
+.st-key-comparacao_analise_a [data-baseweb="select"] div,
+.st-key-comparacao_analise_a [data-baseweb="select"] span,
+.st-key-comparacao_analise_b [data-baseweb="select"] div,
+.st-key-comparacao_analise_b [data-baseweb="select"] span {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    opacity: 1 !important;
 }
 
 /* Fundo dos campos */
@@ -745,9 +756,20 @@ div[data-testid="stDownloadButton"] > button svg {
     color: #E9E5FF !important;
 }
 
+/* LEGENDAS — CONTRASTE REFORÇADO */
+
 [data-testid="stCaptionContainer"] p,
 .stMarkdown small {
-    color: #C9C5E8 !important;
+    color: #E9E5FF !important;
+    opacity: 1 !important;
+}
+
+/* TEXTO DO RELATÓRIO DE COMPARAÇÃO */
+
+[data-testid="stCaptionContainer"] p {
+    color: #F0EDFF !important;
+    opacity: 1 !important;
+    font-weight: 500 !important;
 }
 
 hr {
