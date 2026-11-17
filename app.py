@@ -426,24 +426,34 @@ div[data-testid="stDownloadButton"] > button svg {
 }
 
 /* ==========================================
-   COMPARAÇÃO — TEXTO DOS CAMPOS
+   COMPARAÇÃO — CAMPOS DE SELEÇÃO
    ========================================== */
 
-/* Texto selecionado nos dois campos */
+/* Fundo dos dois campos */
 
-[data-testid="stSelectbox"] [data-baseweb="select"] *,
+.st-key-comparacao_analise_a [data-baseweb="select"],
+.st-key-comparacao_analise_b [data-baseweb="select"],
+.st-key-comparacao_analise_a [data-baseweb="select"] > div,
+.st-key-comparacao_analise_b [data-baseweb="select"] > div {
+    background-color: #20264B !important;
+    border-color: #A78BFA !important;
+}
+
+/* Texto selecionado: branco, sólido e com maior destaque */
+
 .st-key-comparacao_analise_a [data-baseweb="select"] *,
 .st-key-comparacao_analise_b [data-baseweb="select"] * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
     opacity: 1 !important;
+    text-shadow: none !important;
 }
 
-/* Reforço de contraste para os valores selecionados */
+/* Valor principal exibido no campo */
 
 .st-key-comparacao_analise_a [data-baseweb="select"] [class*="singleValue"],
-.st-key-comparacao_analise_a [data-baseweb="select"] [class*="value"],
 .st-key-comparacao_analise_b [data-baseweb="select"] [class*="singleValue"],
+.st-key-comparacao_analise_a [data-baseweb="select"] [class*="value"],
 .st-key-comparacao_analise_b [data-baseweb="select"] [class*="value"] {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
@@ -451,32 +461,34 @@ div[data-testid="stDownloadButton"] > button svg {
     font-weight: 800 !important;
 }
 
-/* Reforço de cor para todos os textos internos dos campos */
+/* Texto interno do controle */
 
-.st-key-comparacao_analise_a [data-baseweb="select"] div,
-.st-key-comparacao_analise_a [data-baseweb="select"] span,
-.st-key-comparacao_analise_b [data-baseweb="select"] div,
-.st-key-comparacao_analise_b [data-baseweb="select"] span {
+.st-key-comparacao_analise_a [data-baseweb="select"] input,
+.st-key-comparacao_analise_b [data-baseweb="select"] input {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
     opacity: 1 !important;
 }
 
-/* Fundo dos campos */
+/* Rótulos dos campos */
 
-.st-key-comparacao_analise_a [data-baseweb="select"] > div,
-.st-key-comparacao_analise_b [data-baseweb="select"] > div {
-    background-color: #20264B !important;
-    color: #FFFFFF !important;
+.st-key-comparacao_analise_a label,
+.st-key-comparacao_analise_b label {
+    color: #F0EDFF !important;
+    font-weight: 800 !important;
+    opacity: 1 !important;
 }
 
-/* Ícone de abertura */
+/* Ícones de abertura */
 
 .st-key-comparacao_analise_a [data-baseweb="select"] svg,
 .st-key-comparacao_analise_b [data-baseweb="select"] svg {
-    color: #C4B5FD !important;
-    fill: #C4B5FD !important;
+    color: #D8CCFF !important;
+    fill: #D8CCFF !important;
+    opacity: 1 !important;
 }
+
+/* Demais campos de seleção */
 
 [data-testid="stSelectbox"] label,
 [data-testid="stMultiSelect"] label,
@@ -737,6 +749,26 @@ div[data-testid="stDownloadButton"] > button svg {
     box-shadow: 0 4px 13px rgba(0,0,0,0.15);
 }
 
+/* TEXTO EXPLICATIVO DA COMPARAÇÃO */
+
+.radvision-comparison-caption {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1.75 !important;
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+}
+
+.radvision-comparison-caption,
+.radvision-comparison-caption * {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    opacity: 1 !important;
+    font-weight: 600 !important;
+}
+
 .chart-shell {
     background: rgba(25,30,66,0.60);
     border: 1px solid rgba(167,139,250,0.40);
@@ -762,14 +794,6 @@ div[data-testid="stDownloadButton"] > button svg {
 .stMarkdown small {
     color: #E9E5FF !important;
     opacity: 1 !important;
-}
-
-/* TEXTO DO RELATÓRIO DE COMPARAÇÃO */
-
-[data-testid="stCaptionContainer"] p {
-    color: #F0EDFF !important;
-    opacity: 1 !important;
-    font-weight: 500 !important;
 }
 
 hr {
@@ -1986,12 +2010,17 @@ if len(st.session_state.historico_analises) >= 2:
 
     plt.close(fig_comp)
 
-    st.caption(
-        "A diferença (B - A) é uma subtração entre escores do modelo. "
-        "Valores positivos indicam escore numericamente maior na análise B; "
-        "valores negativos indicam escore numericamente menor. Isso não equivale "
-        "a aumento ou redução de doença. As imagens podem ter diferenças de "
-        "posicionamento, qualidade, técnica e processamento."
+    st.markdown(
+        """
+        <div class="radvision-comparison-caption">
+            A diferença (B - A) é uma subtração entre escores do modelo.
+            Valores positivos indicam escore numericamente maior na análise B;
+            valores negativos indicam escore numericamente menor. Isso não equivale
+            a aumento ou redução de doença. As imagens podem ter diferenças de
+            posicionamento, qualidade, técnica e processamento.
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
