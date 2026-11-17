@@ -429,28 +429,52 @@ div[data-testid="stDownloadButton"] > button svg {
    COMPARAÇÃO — TEXTO DOS CAMPOS FECHADOS
    ========================================== */
 
-.st-key-comparacao_analise_a [data-baseweb="select"] [class*="singleValue"],
-.st-key-comparacao_analise_b [data-baseweb="select"] [class*="singleValue"],
-.st-key-comparacao_analise_a [data-baseweb="select"] [class*="ValueContainer"] div,
-.st-key-comparacao_analise_b [data-baseweb="select"] [class*="ValueContainer"] div {
+.st-key-comparacao_analise_a [data-baseweb="select"],
+.st-key-comparacao_analise_b [data-baseweb="select"] {
+    color: #FFFFFF !important;
+}
+
+.st-key-comparacao_analise_a [data-baseweb="select"] *,
+.st-key-comparacao_analise_b [data-baseweb="select"] * {
     color: #FFFFFF !important;
     -webkit-text-fill-color: #FFFFFF !important;
     opacity: 1 !important;
 }
 
-/* Garante contraste no texto selecionado */
-
-.st-key-comparacao_analise_a [data-baseweb="select"] > div,
-.st-key-comparacao_analise_b [data-baseweb="select"] > div {
+.st-key-comparacao_analise_a [data-baseweb="select"] input,
+.st-key-comparacao_analise_b [data-baseweb="select"] input {
     color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
 }
-
-/* Ícone de abertura dos campos de comparação */
 
 .st-key-comparacao_analise_a [data-baseweb="select"] svg,
 .st-key-comparacao_analise_b [data-baseweb="select"] svg {
-    color: #C4B5FD !important;
-    fill: #C4B5FD !important;
+    color: #D8CCFF !important;
+    fill: #D8CCFF !important;
+}
+
+/* ==========================================
+   TEXTO DO QUADRO DE COMPARAÇÃO
+   ========================================== */
+
+.radvision-note {
+    background: linear-gradient(
+        110deg,
+        rgba(48,44,91,0.82),
+        rgba(43,39,82,0.75)
+    );
+    border: 1px solid rgba(167,139,250,0.42);
+    border-radius: 13px;
+    padding: 15px 17px;
+    color: #FFFFFF !important;
+    line-height: 1.65;
+    box-shadow: 0 4px 13px rgba(0,0,0,0.15);
+}
+
+.radvision-note,
+.radvision-note * {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
 }
 
 [data-testid="stSelectbox"] label,
@@ -652,31 +676,41 @@ div[data-testid="stDownloadButton"] > button svg {
     box-shadow: 0 7px 22px rgba(0,0,0,0.24);
 }
 
+/* ==========================================
+   RELATÓRIO EXPERIMENTAL — TEXTO MAIS VISÍVEL
+   ========================================== */
+
+.relatorio-radvision,
+.relatorio-radvision * {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+}
+
 .relatorio-radvision .marca {
-    color: #C4B5FD;
+    color: #D8CCFF !important;
     font-size: 25px;
     font-weight: 800;
     letter-spacing: 0.5px;
 }
 
 .relatorio-radvision .slogan {
-    color: #E0D9FF;
+    color: #E0D9FF !important;
     font-size: 13px;
     margin-bottom: 22px;
 }
 
 .relatorio-radvision .secao {
-    color: #C4B5FD;
+    color: #D8CCFF !important;
     font-size: 16px;
     font-weight: 800;
     margin-top: 20px;
     margin-bottom: 9px;
-    border-bottom: 1px solid #55558A;
+    border-bottom: 1px solid #7770B8;
     padding-bottom: 7px;
 }
 
 .relatorio-radvision .texto {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
     font-size: 14px;
     line-height: 1.8;
     margin-bottom: 5px;
@@ -684,27 +718,13 @@ div[data-testid="stDownloadButton"] > button svg {
 
 .relatorio-radvision .aviso {
     background: #34345D;
-    border: 1px solid rgba(192,132,252,0.35);
+    border: 1px solid rgba(192,132,252,0.45);
     border-radius: 9px;
     padding: 15px;
-    color: #F3EFFF;
+    color: #FFFFFF !important;
     font-size: 13px;
     line-height: 1.7;
     margin-top: 20px;
-}
-
-.radvision-note {
-    background: linear-gradient(
-        110deg,
-        rgba(48,44,91,0.82),
-        rgba(43,39,82,0.75)
-    );
-    border: 1px solid rgba(167,139,250,0.42);
-    border-radius: 13px;
-    padding: 15px 17px;
-    color: #E9E5FF;
-    line-height: 1.65;
-    box-shadow: 0 4px 13px rgba(0,0,0,0.15);
 }
 
 .chart-shell {
